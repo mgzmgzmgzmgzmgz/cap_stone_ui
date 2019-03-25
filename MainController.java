@@ -7,13 +7,16 @@ import javafx.scene.control.ToggleButton;
 
 public class MainController {
 
-    @FXML
-    private Canvas canvas;
-
-    @FXML
-    private PieChart pieChart;
-
-    @FXML
-    private ToggleButton toggleButton;
+    @FXML private Canvas canvas;
+    @FXML private PieChart pieChart;
+    @FXML private ToggleButton toggleButton;
+    
+    
+    public void initialize()
+	{
+    	toggleButton.setOnAction(event->{
+    		System.out.println("Wow you dumb bitch way to go.....");
+    	});
+	}
 
 }
