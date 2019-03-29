@@ -87,25 +87,27 @@ public class MainController {
     public void initialize()
 	{
     	
-    	ArrayList<clickableLight> lst = new ArrayList<clickableLight>();
-    	lst.add(new clickableLight("Master Bedroom - Top Right", 43, 50, true));
-    	lst.add(new clickableLight("Master Bedroom - Bottom Right", 43,140,true));
-    	lst.add(new clickableLight("Master Bedroom - Middle", 100,97,true));
-    	lst.add(new clickableLight("Living Room - Center", 310, 235,true));
-    	lst.add(new clickableLight("Kids Bedroom - Bottom Left", 43, 300, true));
-    	lst.add(new clickableLight("Kids Bedroom - Bottom Right", 113, 300, true));
-    	lst.add(new clickableLight("Kids Bedroom - Middle", 80, 250, true));
-    	lst.add(new clickableLight("Closet - Living Room - Left", 138, 300, true));
-    	lst.add(new clickableLight("Bottom Bathroom", 155, 225, true));
-    	lst.add(new clickableLight("Living Room - Top Left", 278, 162, true));
-    	lst.add(new clickableLight("Kitchen", 345, 97, true));
-    	lst.add(new clickableLight("Top Bathroom", 180, 80 ,true));
-    	lst.add(new clickableLight("Closet Office", 173, 135, true));
-    	lst.add(new clickableLight("Office Top", 270, 50, true));
-    	lst.add(new clickableLight("Office Bottom", 260,135,true));
+    	ArrayList<clickableLight> lightList = new ArrayList<clickableLight>();
+    	lightList.add(new clickableLight("Master Bedroom - Top Right", 43, 50, true));
+    	lightList.add(new clickableLight("Master Bedroom - Bottom Right", 43,140,true));
+    	lightList.add(new clickableLight("Master Bedroom - Middle", 100,97,true));
+    	lightList.add(new clickableLight("Living Room - Center", 310, 235,true));
+    	lightList.add(new clickableLight("Kids Bedroom - Bottom Left", 43, 300, true));
+    	lightList.add(new clickableLight("Kids Bedroom - Bottom Right", 113, 300, true));
+    	lightList.add(new clickableLight("Kids Bedroom - Middle", 80, 250, true));
+    	lightList.add(new clickableLight("Closet - Living Room - Left", 138, 300, true));
+    	lightList.add(new clickableLight("Bottom Bathroom", 155, 225, true));
+    	lightList.add(new clickableLight("Living Room - Top Left", 278, 162, true));
+    	lightList.add(new clickableLight("Kitchen", 345, 97, true));
+    	lightList.add(new clickableLight("Top Bathroom", 180, 80 ,true));
+    	lightList.add(new clickableLight("Closet Office", 173, 135, true));
+    	lightList.add(new clickableLight("Office Top", 270, 50, true));
+    	lightList.add(new clickableLight("Office Bottom", 260,135,true));
+    	lightList.add(new clickableLight("Garage", 500,200,true));
     	
-    	Television tv = new Television("TV - Living Room", 200, 240, true);
-    	
+    	ArrayList<Television> tvList = new ArrayList<Television>();
+    	tvList.add(new Television("TV - Living Room", 200, 240, true));
+    	tvList.add(new Television("TV - Living Room", 140, 100, true));
     	
         GraphicsContext gc = canvas.getGraphicsContext2D();
         GraphicsContext gc_bl = bottom_left_canvas.getGraphicsContext2D();
@@ -116,10 +118,10 @@ public class MainController {
         	           @Override
         	           public void handle(MouseEvent e) {
 //        	        	   System.out.println("Mouse was clicked");
-        	        	   updateLights(lst, (int)e.getX(), (int) e.getY());
-        	        	   updateTV(tv, (int)e.getX(), (int) e.getY());
-        	        	   drawAllLights(gc, lst);
-        	        	   drawTV(gc, tv);
+        	        	   updateLights(lightList, (int)e.getX(), (int) e.getY());
+        	        	   updateTVs(tvList, (int)e.getX(), (int) e.getY());
+        	        	   drawAllLights(gc, lightList);
+        	        	   drawAllTVs(gc, tvList);
         	           }
         	       });
         
@@ -145,9 +147,8 @@ public class MainController {
         gc_br.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         
         drawHouse(gc);
-        drawOnTV(gc, tv.getxPos(), tv.getyPos());
-
-        drawAllLights(gc, lst);
+        drawAllTVs(gc, tvList);
+        drawAllLights(gc, lightList);
 
         
 	}
@@ -184,7 +185,9 @@ public class MainController {
 		}
     }
     
-    public void updateTV(Television tv, int x, int y){
+    public void updateTVs(ArrayList<Television> lst, int x, int y){
+    	for (int i = 0; i < lst.size(); i++) {
+    		Television tv = lst.get(i);
     		if((tv.getxPos() <= x) 
     				&& 
     				(tv.getxPos() + 20 >= x)
@@ -194,6 +197,7 @@ public class MainController {
     				(tv.getyPos() + 49 >= y )){
     			tv.switch_();
     		}
+    	}
     }
     
     public void drawAllLights(GraphicsContext gc, ArrayList<clickableLight> lst){
@@ -234,6 +238,18 @@ public class MainController {
 				drawOffTV(gc, tv.getxPos(), tv.getyPos());
 			}
 		}
+    
+    public void drawAllTVs(GraphicsContext gc, ArrayList<Television> lst){
+    	for (int i = 0; i < lst.size(); i++) {
+    		Television tv = lst.get(i);
+			if(tv.isOn()){
+				drawOnTV(gc, tv.getxPos(), tv.getyPos());
+			}
+			else{
+				drawOffTV(gc, tv.getxPos(), tv.getyPos());
+			}
+		}
+    }
     
     public void drawOnTV(GraphicsContext gc, int x_pos, int y_pos){
     	gc.setFill(Color.BLACK);
