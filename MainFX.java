@@ -4,6 +4,11 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class MainFX extends Application {
@@ -15,11 +20,12 @@ public class MainFX extends Application {
 		GridPane gridPane = loader.load();
 		Scene scene = new Scene(gridPane);
 		MainController mainContr = loader.getController();
-		primaryStage.setScene(scene);
+		primaryStage.setScene(scene);		
 		primaryStage.show();
 	}
 
 	public static void main(String[] args){
 		Application.launch(args);
 	}
+	
 }
