@@ -112,7 +112,8 @@ public class MainController {
     public void initialize()
 	{
     	
-    	
+    	////////////////////////////////////////////////////////////////////////
+    	//Initializes the appliances
     	ArrayList<clickableLight> lightList = new ArrayList<clickableLight>();
     	lightList.add(new clickableLight("Master Bedroom - Top Right", 43, 50, true));
     	lightList.add(new clickableLight("Master Bedroom - Bottom Right", 43,140,true));
@@ -136,15 +137,23 @@ public class MainController {
     	tvList.add(new Television("TV - Living Room", 200, 240, true));
     	tvList.add(new Television("TV - Living Room", 140, 100, true));
     	
+    	//Initializes the appliances
+    	////////////////////////////////////////////////////////////////////////	
+    	
+    	
+    	//Creates graphics objects to draw in the canvas
         GraphicsContext gc = canvas.getGraphicsContext2D();
         GraphicsContext gc_bl = bottom_left_canvas.getGraphicsContext2D();
         GraphicsContext gc_br = bottom_right_canvas.getGraphicsContext2D();
+        //Creates graphics objects to draw in the canvas
         
+        
+        ////////////////////////////////////////////////////////////////////////
+        //Event handlers from click/drag appliances
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, 
         	       new EventHandler<MouseEvent>() {
         	           @Override
         	           public void handle(MouseEvent e) {
-//        	        	   System.out.println("Mouse was clicked");
         	        	   if (dragIsEnabled){
         	        		   wasLightSelected(lightList, (int)e.getX(), (int) e.getY());
         	        		   selectedLight = lightThatWasSelected(lightList, (int)e.getX(), (int) e.getY());
@@ -183,16 +192,12 @@ public class MainController {
 						else{}
 					}
         });
-        
-//        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED,
-//        		new EventHandler<MouseEvent>(){
-//        			@Override
-//        			public void handle(MouseEvent event) {
-//        				gc.ree
-//        				drawAllLights(gc, lightList);
-//        			}});
-        
-       
+        //Event handlers from click/drag appliances
+        ////////////////////////////////////////////////////////////////////////
+
+
+        //////////////////////////////////////////////////////////////
+        //Drawing
         gc_bl.setFill(new LinearGradient(0, 0, 1, 1, true,
                 CycleMethod.REFLECT,
                 new Stop(0, Color.LIGHTBLUE),
@@ -216,7 +221,8 @@ public class MainController {
         drawHouse(gc);
         drawAllTVs(gc, tvList);
         drawAllLights(gc, lightList);
-
+        //Drawing
+        ////////////////////////////////////////////////////////////////////
         
 	}
     
@@ -226,14 +232,11 @@ public class MainController {
     
     
 ///////////////////////////////////////////////////////////////////////////////////
-    //Drawing functions
-
-    
+    //Various Methods
     
     public void drawHouse(GraphicsContext gc){
     	String imagePath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/ld_house3.png";
     	Image image = new Image(imagePath);
-    	// Draw the Image
     	gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
     }
 

@@ -3,10 +3,11 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -78,7 +79,11 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <ToggleButton fx:id="toggleButton" layoutX="213.0" layoutY="242.0" mnemonicParsing="false" text="ToggleButton" />
+                        <RadioButton fx:id="dragModeRadioButton" layoutX="113.0" layoutY="143.0" mnemonicParsing="false" onAction="#onSelection" text="Drag Mode">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="toggleGroup" />
+                           </toggleGroup></RadioButton>
+                        <RadioButton fx:id="onOffRadioButton" layoutX="113.0" layoutY="119.0" mnemonicParsing="false" onAction="#onSelection" text="On/Off Mode" toggleGroup="$toggleGroup" />
                      </children>
                   </AnchorPane>
               </content>

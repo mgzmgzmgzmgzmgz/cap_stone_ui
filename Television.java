@@ -1,6 +1,7 @@
 package cap_stone;
 
-public class Television {
+public class Television implements IAppliance{
+	
 	public Television (String name, int xPos, int yPos, boolean isOn){
 		this.setName(name);
 		this.xPos = xPos;

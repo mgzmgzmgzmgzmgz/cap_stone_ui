@@ -1,6 +1,6 @@
 package cap_stone;
 
-public class clickableLight {
+public class clickableLight implements IAppliance{
 
 	public clickableLight(String name, int xPos, int yPos, boolean isOn){
 		this.setName(name);
