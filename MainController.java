@@ -2,6 +2,8 @@ package cap_stone;
 
 import java.util.ArrayList;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -9,8 +11,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -75,10 +79,31 @@ public class MainController {
 
     @FXML
     private PieChart pieChart;
-
-    @FXML
-    private ToggleButton toggleButton;
     
+    @FXML
+    private ToggleGroup toggleGroup;
+    
+    Boolean dragIsEnabled = false;
+    
+    @FXML
+    void onSelection(ActionEvent event){
+    	RadioButton r = (RadioButton)event.getTarget();
+    	
+    	if(r.isSelected()){
+    		if(r.getText().equals("On/Off Mode")){
+    			dragIsEnabled = false;
+    			System.out.println(this.dragIsEnabled);
+    		}
+    		else{
+    			dragIsEnabled = true;
+    			System.out.println(this.dragIsEnabled);
+    		}
+    	}
+    }
+    
+    clickableLight nullLight = new clickableLight("Null", 0, 0, true);
+    clickableLight selectedLight;
+    boolean lightWasSelected = false;
     
     
 ///////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +111,7 @@ public class MainController {
     
     public void initialize()
 	{
+    	
     	
     	ArrayList<clickableLight> lightList = new ArrayList<clickableLight>();
     	lightList.add(new clickableLight("Master Bedroom - Top Right", 43, 50, true));
@@ -104,6 +130,7 @@ public class MainController {
     	lightList.add(new clickableLight("Office Top", 270, 50, true));
     	lightList.add(new clickableLight("Office Bottom", 260,135,true));
     	lightList.add(new clickableLight("Garage", 500,200,true));
+
     	
     	ArrayList<Television> tvList = new ArrayList<Television>();
     	tvList.add(new Television("TV - Living Room", 200, 240, true));
@@ -118,12 +145,52 @@ public class MainController {
         	           @Override
         	           public void handle(MouseEvent e) {
 //        	        	   System.out.println("Mouse was clicked");
+        	        	   if (dragIsEnabled){
+        	        		   wasLightSelected(lightList, (int)e.getX(), (int) e.getY());
+        	        		   selectedLight = lightThatWasSelected(lightList, (int)e.getX(), (int) e.getY());
+        	        		   System.out.println(selectedLight.getName());
+        	        	   }
+        	        	   else{
         	        	   updateLights(lightList, (int)e.getX(), (int) e.getY());
         	        	   updateTVs(tvList, (int)e.getX(), (int) e.getY());
         	        	   drawAllLights(gc, lightList);
         	        	   drawAllTVs(gc, tvList);
+        	        	   }
         	           }
         	       });
+        
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, 
+        		new EventHandler<MouseEvent>(){
+					@Override
+					public void handle(MouseEvent event) {
+						if(dragIsEnabled){
+							if(lightWasSelected){
+								selectedLight.setxPos((int) event.getX());
+								selectedLight.setyPos((int) event.getY());
+								gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+								gc.setFill(new LinearGradient(0, 0, 1, 1, true,
+						                CycleMethod.REFLECT,
+						                new Stop(0, Color.LIGHTBLUE),
+						                new Stop(1, Color.BISQUE)));
+						        
+						        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+						        
+						        drawHouse(gc);
+						        drawAllTVs(gc, tvList);
+						        drawAllLights(gc, lightList);
+							}
+						}
+						else{}
+					}
+        });
+        
+//        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED,
+//        		new EventHandler<MouseEvent>(){
+//        			@Override
+//        			public void handle(MouseEvent event) {
+//        				gc.ree
+//        				drawAllLights(gc, lightList);
+//        			}});
         
        
         gc_bl.setFill(new LinearGradient(0, 0, 1, 1, true,
@@ -170,6 +237,59 @@ public class MainController {
     	gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
+    public clickableLight lightThatWasSelected(ArrayList<clickableLight> lst, int x, int y){
+    	clickableLight light = nullLight;
+    	for (int i = 0; i < lst.size(); i++) {
+    		clickableLight cL = lst.get(i);
+    		if((cL.getxPos() <= x) 
+    				&& 
+    				(cL.getxPos() + 20 >= x)
+    				&& 
+    				(cL.getyPos() <= y)
+    				&&
+    				(cL.getyPos() + 20 >= y )){
+    			light =  cL;
+    			return cL;
+    		}
+		}
+    	return light;
+    }
+    
+    public void wasLightSelected(ArrayList<clickableLight> lst, int x, int y){
+    	for (int i = 0; i < lst.size(); i++) {
+    		clickableLight cL = lst.get(i);
+    		if((cL.getxPos() <= x) 
+    				&& 
+    				(cL.getxPos() + 20 >= x)
+    				&& 
+    				(cL.getyPos() <= y)
+    				&&
+    				(cL.getyPos() + 20 >= y )){
+    			lightWasSelected = true;
+    		}
+		}
+    }
+    
+    public boolean tvWasSelected(ArrayList<Television> lst, int x, int y){
+    	boolean answer = false;
+    	for (int i = 0; i < lst.size(); i++) {
+    		Television cL = lst.get(i);
+    		if((cL.getxPos() <= x) 
+    				&& 
+    				(cL.getxPos() + 20 >= x)
+    				&& 
+    				(cL.getyPos() <= y)
+    				&&
+    				(cL.getyPos() + 20 >= y )){
+    			return true;
+    		}
+    		else{
+    			answer = true;;
+    		}
+		}
+    	return answer;
+    }
+    
     public void updateLights(ArrayList<clickableLight> lst, int x, int y){
     	for (int i = 0; i < lst.size(); i++) {
     		clickableLight cL = lst.get(i);
@@ -254,7 +374,7 @@ public class MainController {
     public void drawOnTV(GraphicsContext gc, int x_pos, int y_pos){
     	gc.setFill(Color.BLACK);
     	gc.fillRect(x_pos-1, y_pos-1, 19, 49);
-    	gc.setFill(Color.WHITE);
+    	gc.setFill(Color.YELLOW);
     	gc.fillRect(x_pos, y_pos, 17, 47);
     	gc.setFill(Color.BLACK);
     	gc.fillText("T", x_pos + 5, y_pos + 22);
