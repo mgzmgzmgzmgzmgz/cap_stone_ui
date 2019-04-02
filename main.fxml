@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.canvas.Canvas?>
-<?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Tab?>
@@ -71,7 +70,15 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <PieChart fx:id="pieChart" layoutX="65.0" layoutY="69.0" />
+                        <Canvas fx:id="graphCanvas" height="420.0" layoutX="14.0" layoutY="14.0" width="629.0" />
+                        <RadioButton fx:id="sevenDayRadioButton" layoutX="58.0" layoutY="469.0" mnemonicParsing="false" text="7 Days">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="graphToggle" />
+                           </toggleGroup>
+                        </RadioButton>
+                        <RadioButton fx:id="fourWeeksRadioButton" layoutX="166.0" layoutY="469.0" mnemonicParsing="false" text="4 Weeks" toggleGroup="$graphToggle" />
+                        <RadioButton fx:id="sixMonthsRadioButton" layoutX="280.0" layoutY="469.0" mnemonicParsing="false" text="6 Months" toggleGroup="$graphToggle" />
+                        <RadioButton fx:id="twelveMonthsRadioButton" layoutX="409.0" layoutY="469.0" mnemonicParsing="false" text="12 Months" toggleGroup="$graphToggle" />
                      </children></AnchorPane>
             </content>
           </Tab>

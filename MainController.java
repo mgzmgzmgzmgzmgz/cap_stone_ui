@@ -78,10 +78,31 @@ public class MainController {
     private TextField yearlyCostTextField;
 
     @FXML
-    private PieChart pieChart;
-    
+    private Canvas graphCanvas;
+
+    @FXML
+    private RadioButton sevenDayRadioButton;
+
+    @FXML
+    private ToggleGroup graphToggle;
+
+    @FXML
+    private RadioButton fourWeeksRadioButton;
+
+    @FXML
+    private RadioButton sixMonthsRadioButton;
+
+    @FXML
+    private RadioButton twelveMonthsRadioButton;
+
+    @FXML
+    private RadioButton dragModeRadioButton;
+
     @FXML
     private ToggleGroup toggleGroup;
+
+    @FXML
+    private RadioButton onOffRadioButton;
     
     Boolean dragIsEnabled = false;
     
@@ -101,9 +122,14 @@ public class MainController {
     	}
     }
     
-    clickableLight nullLight = new clickableLight("Null", 0, 0, true);
-    clickableLight selectedLight;
-    boolean lightWasSelected = false;
+    private clickableLight nullLight = new clickableLight("Null", 0, 0, true);
+    private clickableLight selectedLight;
+    private boolean lightWasSelected = false;
+    private ArrayList<clickableLight> lightList;
+    
+    public ArrayList<clickableLight> getLightList(){
+    	return this.lightList;
+    }
     
     
 ///////////////////////////////////////////////////////////////////////////////////
@@ -112,9 +138,15 @@ public class MainController {
     public void initialize()
 	{
     	
+    	//Starts the application off with a radio button selected for each toggle group
+    	this.sixMonthsRadioButton.setSelected(true);
+    	this.onOffRadioButton.setSelected(true);
+    	//Starts the application off with a radio button selected for each toggle group
+    	
+    	
     	////////////////////////////////////////////////////////////////////////
     	//Initializes the appliances
-    	ArrayList<clickableLight> lightList = new ArrayList<clickableLight>();
+    	lightList = new ArrayList<clickableLight>();
     	lightList.add(new clickableLight("Master Bedroom - Top Right", 43, 50, true));
     	lightList.add(new clickableLight("Master Bedroom - Bottom Right", 43,140,true));
     	lightList.add(new clickableLight("Master Bedroom - Middle", 100,97,true));
@@ -145,6 +177,7 @@ public class MainController {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         GraphicsContext gc_bl = bottom_left_canvas.getGraphicsContext2D();
         GraphicsContext gc_br = bottom_right_canvas.getGraphicsContext2D();
+        GraphicsContext graph_canvas = this.graphCanvas.getGraphicsContext2D();
         //Creates graphics objects to draw in the canvas
         
         
@@ -223,6 +256,15 @@ public class MainController {
         drawAllLights(gc, lightList);
         //Drawing
         ////////////////////////////////////////////////////////////////////
+        
+        //Hunters code for saving I guess
+//		ItemContainer testRoot = Utility.readObjectFromFile("TreeModel.object");
+//		if (testRoot != null)
+//		{
+//			root.copyChildren(testRoot);
+//			addTreeItems(getRootTreeItem());
+//		}
+
         
 	}
     
