@@ -70,7 +70,8 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Canvas fx:id="graphCanvas" height="420.0" layoutX="14.0" layoutY="14.0" width="629.0" />
+                        <Canvas fx:id="backgroundGraphCanvas" height="544.0" layoutX="-9.0" layoutY="-3.0" width="669.0" />
+                        <Canvas fx:id="graphCanvas" height="420.0" layoutX="15.0" layoutY="14.0" width="629.0" />
                         <RadioButton fx:id="sevenDayRadioButton" layoutX="58.0" layoutY="469.0" mnemonicParsing="false" text="7 Days">
                            <toggleGroup>
                               <ToggleGroup fx:id="graphToggle" />

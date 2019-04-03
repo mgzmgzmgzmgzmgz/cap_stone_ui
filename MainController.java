@@ -79,6 +79,9 @@ public class MainController {
 
     @FXML
     private Canvas graphCanvas;
+    
+    @FXML
+    private Canvas backgroundGraphCanvas;
 
     @FXML
     private RadioButton sevenDayRadioButton;
@@ -193,7 +196,8 @@ public class MainController {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         GraphicsContext gc_bl = bottom_left_canvas.getGraphicsContext2D();
         GraphicsContext gc_br = bottom_right_canvas.getGraphicsContext2D();
-        GraphicsContext graph_canvas = this.graphCanvas.getGraphicsContext2D();
+        GraphicsContext graph_canvas = graphCanvas.getGraphicsContext2D();
+        GraphicsContext bgGraphCanvas = backgroundGraphCanvas.getGraphicsContext2D();
         //Creates graphics objects to draw in the canvas
         
         
@@ -247,6 +251,11 @@ public class MainController {
 
         //////////////////////////////////////////////////////////////
         //Drawing
+        bgGraphCanvas.setFill(new LinearGradient(0, 0, 1, 1, true,
+                CycleMethod.REFLECT,
+                new Stop(0, Color.LIGHTBLUE),
+                new Stop(1, Color.BISQUE)));
+        
         gc_bl.setFill(new LinearGradient(0, 0, 1, 1, true,
                 CycleMethod.REFLECT,
                 new Stop(0, Color.LIGHTBLUE),
@@ -266,6 +275,7 @@ public class MainController {
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc_bl.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc_br.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        bgGraphCanvas.fillRect(0, 0, backgroundGraphCanvas.getWidth(), backgroundGraphCanvas.getHeight());
         
         
         //Interface drawing
@@ -276,8 +286,7 @@ public class MainController {
         
         
         //Graph page drawing
-        graphDrawing.drawOutline(graph_canvas, (int)canvas.getWidth(), (int)canvas.getHeight());
-        graphDrawing.drawGraphLineUsage(graph_canvas, (int)canvas.getWidth(), (int)canvas.getHeight(), 
+        graphDrawing.drawGraph(graph_canvas, (int)canvas.getWidth(), (int)canvas.getHeight(), 
         		Wtest28values,
         		Etest28values,
         		Ctest28values);

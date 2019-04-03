@@ -10,13 +10,16 @@ public class GraphDrawingClass {
 	
 	public GraphDrawingClass(){}
 	
-	public GraphDrawingClass(int canvasLength, int canvasWidth){
-		this.setCanvasLength(canvasLength);
-		this.setCanvasWidth(canvasWidth);
+	public void drawGraph(GraphicsContext gc, int farthest_x, int farthest_y, 
+			ArrayList<Integer> waterList,
+			ArrayList<Integer> electricList,
+			ArrayList<Integer> costList)
+	{
+		drawWhiteBackground(gc,farthest_x, farthest_y);
+		drawOutline(gc,farthest_x, farthest_y);
+		drawGraphLineUsage(gc, farthest_x, farthest_y, waterList, electricList, costList);
+		drawKey(gc, farthest_x, farthest_y);
 	}
-	
-	private int canvasLength;
-	private int canvasWidth;
 
 	public void drawOutline(GraphicsContext gc, int farthest_x, int farthest_y){
 		gc.setFill(Color.BLACK);
@@ -26,6 +29,13 @@ public class GraphDrawingClass {
 		gc.strokeLine(0, farthest_y, farthest_x, farthest_y);
 		gc.strokeLine(farthest_x, 0, farthest_x, farthest_y);
     }
+	
+	public void drawWhiteBackground(GraphicsContext gc, int farthest_x, int farthest_y){
+		gc.setFill(Color.GAINSBORO);
+		gc.fillRect(0, 0, farthest_x, farthest_y);
+    }
+	
+	
 	
 	public int getMax(ArrayList<Integer> list){
 		int max = Integer.MIN_VALUE;
@@ -89,13 +99,17 @@ public class GraphDrawingClass {
 			}
 		}
     }
-
-
-	public int getCanvasLength() {return canvasLength;}
-	public void setCanvasLength(int canvasLength) {this.canvasLength = canvasLength;}
-
-	public int getCanvasWidth() {return canvasWidth;}
-	public void setCanvasWidth(int canvasWidth) {this.canvasWidth = canvasWidth;}
+	
+	public void drawKey(GraphicsContext gc, int farthest_x, int farthest_y){
+		gc.setFill(Color.GRAY);
+    	gc.fillRect(0, 0, 70, 45);
+    	gc.setFill(Color.BLUE);
+    	gc.fillText("Water", 5, 15);
+    	gc.setFill(Color.YELLOW);
+    	gc.fillText("Electricity", 5, 27);
+    	gc.setFill(Color.GREEN);
+    	gc.fillText("Cost", 5, 39);
+	}
 	
 	
 }
