@@ -126,6 +126,12 @@ public class MainController {
     private clickableLight selectedLight;
     private boolean lightWasSelected = false;
     private ArrayList<clickableLight> lightList;
+    private GraphDrawingClass graphDrawing = new GraphDrawingClass();
+    
+    private ArrayList<Integer> Wtest28values = new ArrayList<Integer>();
+    private ArrayList<Integer> Ctest28values = new ArrayList<Integer>();
+    private ArrayList<Integer> Etest28values = new ArrayList<Integer>();
+    
     
     public ArrayList<clickableLight> getLightList(){
     	return this.lightList;
@@ -137,6 +143,16 @@ public class MainController {
     
     public void initialize()
 	{
+    	
+    	for (int i = 0; i < 28; i++) {
+    		Wtest28values.add((int)(Math.random() * 20));
+		}
+    	for (int i = 0; i < 28; i++) {
+    		Ctest28values.add((int)(Math.random() * 20));
+		}
+    	for (int i = 0; i < 28; i++) {
+    		Etest28values.add((int)(Math.random() * 20));
+		}
     	
     	//Starts the application off with a radio button selected for each toggle group
     	this.sixMonthsRadioButton.setSelected(true);
@@ -251,21 +267,26 @@ public class MainController {
         gc_bl.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc_br.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         
+        
+        //Interface drawing
         drawHouse(gc);
         drawAllTVs(gc, tvList);
         drawAllLights(gc, lightList);
+        //Interface drawing
+        
+        
+        //Graph page drawing
+        graphDrawing.drawOutline(graph_canvas, (int)canvas.getWidth(), (int)canvas.getHeight());
+        graphDrawing.drawGraphLineUsage(graph_canvas, (int)canvas.getWidth(), (int)canvas.getHeight(), 
+        		Wtest28values,
+        		Etest28values,
+        		Ctest28values);
+        //Graph Page drawing
+        
+        
         //Drawing
         ////////////////////////////////////////////////////////////////////
-        
-        //Hunters code for saving I guess
-//		ItemContainer testRoot = Utility.readObjectFromFile("TreeModel.object");
-//		if (testRoot != null)
-//		{
-//			root.copyChildren(testRoot);
-//			addTreeItems(getRootTreeItem());
-//		}
-
-        
+ 
 	}
     
     //initialize block
