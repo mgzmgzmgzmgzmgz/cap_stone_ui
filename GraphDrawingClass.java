@@ -16,9 +16,15 @@ public class GraphDrawingClass {
 			ArrayList<Integer> costList)
 	{
 		drawWhiteBackground(gc,farthest_x, farthest_y);
-		drawOutline(gc,farthest_x, farthest_y);
+//		drawOutline(gc,farthest_x, farthest_y);
+		String imagePath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/GraphBackdrop.png";
+    	Image image = new Image(imagePath);
+    	gc.drawImage(image, -14, -18, farthest_x+28, farthest_y+36);
 		drawGraphLineUsage(gc, farthest_x, farthest_y, waterList, electricList, costList);
-		drawKey(gc, farthest_x, farthest_y);
+//		String graphLegendImagePath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/Graph_legend.png";
+//		Image graphLegendImage = new Image(graphLegendImagePath);
+//		gc.drawImage(graphLegendImage, 504, 0, 125, 100);
+//		drawKey(gc, farthest_x, farthest_y);
 	}
 
 	public void drawOutline(GraphicsContext gc, int farthest_x, int farthest_y){
@@ -31,7 +37,7 @@ public class GraphDrawingClass {
     }
 	
 	public void drawWhiteBackground(GraphicsContext gc, int farthest_x, int farthest_y){
-		gc.setFill(Color.GAINSBORO);
+		gc.setFill(Color.WHITE);
 		gc.fillRect(0, 0, farthest_x, farthest_y);
     }
 	
@@ -52,11 +58,14 @@ public class GraphDrawingClass {
 			ArrayList<Integer> electricList,
 			ArrayList<Integer> costList){
 		
+		
 		gc.setLineWidth(2.0);
 		
 		int waterMax = getMax(waterList);
 		int elecMax = getMax(electricList);
 		int costMax = getMax(costList);
+		
+		int initial_x = 3;
 		
 		int x_incrementer = farthest_x / (costList.size() - 1);
 		int water_y_normalizer = farthest_y / waterMax;
@@ -68,19 +77,19 @@ public class GraphDrawingClass {
 		for (int i = 0; i < waterList.size() - 1; i++) 
 		{	
 			if(i == 0){
-				gc.strokeLine(0, waterList.get(i) * water_y_normalizer, x_incrementer * (i + 1), waterList.get(i + 1) * water_y_normalizer);
+				gc.strokeLine(initial_x, waterList.get(i) * water_y_normalizer, x_incrementer * (i + 1), waterList.get(i + 1) * water_y_normalizer);
 			}
 			else{
 				gc.strokeLine(x_incrementer * i, waterList.get(i) * water_y_normalizer, x_incrementer * (i + 1), waterList.get(i + 1) * water_y_normalizer);
 			}
 		}
 		
-		gc.setStroke(Color.YELLOW);
+		gc.setStroke(Color.INDIANRED);
 		//Electricity Draw
 		for (int i = 0; i < electricList.size() - 1; i++) 
 		{	
 			if(i == 0){
-				gc.strokeLine(0, electricList.get(i) * elec_y_normalizer, x_incrementer * (i + 1), electricList.get(i + 1) * elec_y_normalizer);
+				gc.strokeLine(initial_x, electricList.get(i) * elec_y_normalizer, x_incrementer * (i + 1), electricList.get(i + 1) * elec_y_normalizer);
 			}
 			else{
 				gc.strokeLine(x_incrementer * i, electricList.get(i) * elec_y_normalizer, x_incrementer * (i + 1), electricList.get(i + 1) * elec_y_normalizer);
@@ -92,7 +101,7 @@ public class GraphDrawingClass {
 		for (int i = 0; i < costList.size() - 1; i++) 
 		{	
 			if(i == 0){
-				gc.strokeLine(0, costList.get(i) * cost_y_normalizer, x_incrementer * (i + 1), costList.get(i + 1) * cost_y_normalizer);
+				gc.strokeLine(initial_x, costList.get(i) * cost_y_normalizer, x_incrementer * (i + 1), costList.get(i + 1) * cost_y_normalizer);
 			}
 			else{
 				gc.strokeLine(x_incrementer * i, costList.get(i) * cost_y_normalizer, x_incrementer * (i + 1), costList.get(i + 1) * cost_y_normalizer);

@@ -115,45 +115,38 @@ public class MainController {
 
     @FXML
     private RadioButton japaneseRadioButton;
+    
+    @FXML
+    private Label maxGraphValues;
+
+    @FXML
+    private Label midGraphVal;
+    
+    @FXML
+    private Label halfGraphTimeLabel;
+
+    @FXML
+    private Label graphTimeLabel;
 
     @FXML
     void languageSelectionAction(ActionEvent event) {
     	RadioButton r = (RadioButton)event.getTarget();
     	if(r.equals(englishRadioButton)){
     			System.out.println("English button selected");
+    			japIsSelected = false;
     			setToEnglish();
+    			setTimeLabels(selectedGraphTimeFrame);
     		}
     	if(r.isSelected()){
     		if(r.equals(japaneseRadioButton)){
     			System.out.println("Japanese button selected");
+    			japIsSelected = true;
     			setToJapanese();
+    			setTimeLabels(selectedGraphTimeFrame);
     		}
     	}
     }
-    
-    
-    
-    
-    
-    
-    Boolean dragIsEnabled = false;
-    
-//    @FXML
-//    void onSelection(ActionEvent event){
-//    	RadioButton r = (RadioButton)event.getTarget();
-//    	
-//    	if(r.isSelected()){
-//    		if(r.getText().equals("On/Off Mode")){
-//    			dragIsEnabled = false;
-//    			System.out.println(this.dragIsEnabled);
-//    		}
-//    		else{
-//    			dragIsEnabled = true;
-//    			System.out.println(this.dragIsEnabled);
-//    		}
-//    	}
-//    }
-    
+
     @FXML
     void onSelectionGraphToggles(ActionEvent event) {
 
@@ -175,6 +168,9 @@ public class MainController {
     	}
     }
     
+    private int selectedGraphTimeFrame = 1;
+    private Boolean japIsSelected = false;
+    private Boolean dragIsEnabled = false;
     private clickableLight nullLight = new clickableLight("Null", 0, 0, true);
     private clickableLight selectedLight;
     private boolean lightWasSelected = false;
@@ -185,22 +181,6 @@ public class MainController {
     private ArrayList<Integer> Ctest28values = new ArrayList<Integer>();
     private ArrayList<Integer> Etest28values = new ArrayList<Integer>();
     
-    public void setGraphArraysWithRandomNumber(){
-    	Wtest28values.clear();
-    	Ctest28values.clear();
-    	Etest28values.clear();
-		
-    	for (int i = 0; i < 28; i++) {
-    		Wtest28values.add((int)(Math.random() * 20));
-		}
-    	for (int i = 0; i < 28; i++) {
-    		Ctest28values.add((int)(Math.random() * 20));
-		}
-    	for (int i = 0; i < 28; i++) {
-    		Etest28values.add((int)(Math.random() * 20));
-		}
-    }
-    
     public ArrayList<clickableLight> getLightList(){
     	return this.lightList;
     }
@@ -210,9 +190,10 @@ public class MainController {
   //initialize block
     
     public void initialize()
-	{
-    	
+    {
     	setGraphArraysWithRandomNumber();
+    	updateGraphValLabels();
+    	
     	
 //    	this.graphToggle.
     	
@@ -220,6 +201,8 @@ public class MainController {
     	sixMonthsRadioButton.setSelected(true);
     	onOffRadioButton.setSelected(true);
     	englishRadioButton.setSelected(true);
+    	this.graphTimeLabel.setText("6 Months");
+		this.halfGraphTimeLabel.setText("3 Months");
     	//Starts the application off with a radio button selected for each toggle group
     	
     	
@@ -317,11 +300,17 @@ public class MainController {
         this.sevenDayRadioButton.selectedProperty().addListener(event->{
         	if(this.sevenDayRadioButton.isSelected()){
         		System.out.println("7 days selected");
+//        		this.Wtest28values = this.water_7_days;
+//        		this.Ctest28values = this.cost_7days;
+//        		this.Etest28values = this.power_7_days;
         		this.setGraphArraysWithRandomNumber();
         		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
                 		Wtest28values,
                 		Etest28values,
                 		Ctest28values);
+        		updateGraphValLabels();
+        		selectedGraphTimeFrame = 1;
+        		setTimeLabels(selectedGraphTimeFrame);
         	}
         });
         this.sixMonthsRadioButton.selectedProperty().addListener(event->{
@@ -333,6 +322,9 @@ public class MainController {
                 		Etest28values,
                 		Ctest28values);
         	}
+        	updateGraphValLabels();
+        	selectedGraphTimeFrame = 2;
+        	setTimeLabels(selectedGraphTimeFrame);
         });
         this.fourWeeksRadioButton.selectedProperty().addListener(event->{
         	if(this.fourWeeksRadioButton.isSelected()){
@@ -343,6 +335,9 @@ public class MainController {
                 		Etest28values,
                 		Ctest28values);
         	}
+        	updateGraphValLabels();
+        	selectedGraphTimeFrame = 3;
+        	setTimeLabels(selectedGraphTimeFrame);
         });
         this.twelveMonthsRadioButton.selectedProperty().addListener(event->{
         	if(this.twelveMonthsRadioButton.isSelected()){
@@ -353,6 +348,9 @@ public class MainController {
                 		Etest28values,
                 		Ctest28values);
         	}
+        	updateGraphValLabels();
+        	selectedGraphTimeFrame = 4;
+        	setTimeLabels(selectedGraphTimeFrame);
         });
         //Event Handlers for graph radio buttons
         ///////////////////////////////////////////////////////////////////////
@@ -617,8 +615,72 @@ public class MainController {
     	japaneseRadioButton.setText("日本語");
     }
     
+    public void updateGraphValLabels(){
+    	int waterMax = graphDrawing.getMax(Wtest28values);
+    	int elecMax = graphDrawing.getMax(Etest28values);
+    	int costMax = graphDrawing.getMax(Ctest28values);
+    	
+    	this.maxGraphValues.setText(waterMax + "gal, " + elecMax + "kwh, " + "$" + costMax);
+    	this.midGraphVal.setText(waterMax/2 + "gal, " + elecMax/2 + "kwh, " + "$" + costMax/2);
+    }
     
+    public void setGraphArraysWithRandomNumber(){
+    	Wtest28values.clear();
+    	Ctest28values.clear();
+    	Etest28values.clear();
+		
+    	for (int i = 0; i < 28; i++) {
+    		Wtest28values.add((int)(Math.random() * 100));
+		}
+    	for (int i = 0; i < 28; i++) {
+    		Ctest28values.add((int)(Math.random() * 100));
+		}
+    	for (int i = 0; i < 28; i++) {
+    		Etest28values.add((int)(Math.random() * 100));
+		}
+    }
     
-
+    public void setTimeLabels(int i){
+    	if(i == 1){
+    		if(this.japIsSelected){
+        		this.graphTimeLabel.setText("7日");
+        		this.halfGraphTimeLabel.setText("3.5日");
+    		}
+    		else{
+        		this.graphTimeLabel.setText("7 Days");
+        		this.halfGraphTimeLabel.setText("3.5 Days");
+    		}
+    	}
+    	if(i == 2){
+    		if(this.japIsSelected){
+            	this.graphTimeLabel.setText("6ヵ月");
+        		this.halfGraphTimeLabel.setText("12か月");
+    		}
+    		else{
+            	this.graphTimeLabel.setText("6 Months");
+        		this.halfGraphTimeLabel.setText("3 Months");
+    		}
+    	}
+    	if(i == 3){
+    		if(this.japIsSelected){
+    			this.graphTimeLabel.setText("4週間");
+        		this.halfGraphTimeLabel.setText("2週間");
+    		}
+    		else{
+    			this.graphTimeLabel.setText("4 Weeks");
+        		this.halfGraphTimeLabel.setText("2 Weeks");
+    		}
+    	}
+    	if(i == 4){
+    		if(this.japIsSelected){
+    			this.graphTimeLabel.setText("12ヵ月");
+        		this.halfGraphTimeLabel.setText("6ヵ月");
+    		}
+    		else{
+    			this.graphTimeLabel.setText("12 Months");
+        		this.halfGraphTimeLabel.setText("6 Months");
+    		}
+    	}
+    }
 
 }
