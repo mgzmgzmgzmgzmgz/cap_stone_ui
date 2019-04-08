@@ -42,7 +42,7 @@
                                     <Label fx:id="TemperatureLabel" layoutX="125.0" layoutY="14.0" text="Temperature" />
                                     <Label fx:id="InternalLabel" layoutX="14.0" layoutY="49.0" text="Internal" />
                                     <Label fx:id="ExternalLabel" layoutX="12.0" layoutY="79.0" text="External" />
-                                    <Label fx:id="HVACLabel" layoutX="11.0" layoutY="109.0" text="HVAC+-" />
+                                    <Label fx:id="HVACLabel" layoutX="11.0" layoutY="109.0" text="HVAC" />
                                     <TextField fx:id="internalTempTextField" layoutX="81.0" layoutY="44.0" />
                                     <TextField fx:id="externalTempTextField" layoutX="81.0" layoutY="74.0" />
                                     <TextField fx:id="HVACTextField" layoutX="81.0" layoutY="104.0" />
@@ -72,14 +72,13 @@
                      <children>
                         <Canvas fx:id="backgroundGraphCanvas" height="544.0" layoutX="-9.0" layoutY="-3.0" width="669.0" />
                         <Canvas fx:id="graphCanvas" height="420.0" layoutX="15.0" layoutY="14.0" width="629.0" />
-                        <RadioButton fx:id="sevenDayRadioButton" layoutX="58.0" layoutY="469.0" mnemonicParsing="false" text="7 Days">
+                        <RadioButton fx:id="sevenDayRadioButton" layoutX="15.0" layoutY="460.0" mnemonicParsing="false" text="7 Days">
                            <toggleGroup>
                               <ToggleGroup fx:id="graphToggle" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton fx:id="fourWeeksRadioButton" layoutX="166.0" layoutY="469.0" mnemonicParsing="false" text="4 Weeks" toggleGroup="$graphToggle" />
-                        <RadioButton fx:id="sixMonthsRadioButton" layoutX="280.0" layoutY="469.0" mnemonicParsing="false" text="6 Months" toggleGroup="$graphToggle" />
-                        <RadioButton fx:id="twelveMonthsRadioButton" layoutX="409.0" layoutY="469.0" mnemonicParsing="false" text="12 Months" toggleGroup="$graphToggle" />
+                           </toggleGroup></RadioButton>
+                        <RadioButton fx:id="fourWeeksRadioButton" layoutX="15.0" layoutY="487.0" mnemonicParsing="false" text="4 Weeks" toggleGroup="$graphToggle" />
+                        <RadioButton fx:id="sixMonthsRadioButton" layoutX="103.0" layoutY="460.0" mnemonicParsing="false" text="6 Months" toggleGroup="$graphToggle" />
+                        <RadioButton fx:id="twelveMonthsRadioButton" layoutX="103.0" layoutY="487.0" mnemonicParsing="false" text="12 Months" toggleGroup="$graphToggle" />
                      </children></AnchorPane>
             </content>
           </Tab>
@@ -87,11 +86,17 @@
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <RadioButton fx:id="dragModeRadioButton" layoutX="113.0" layoutY="143.0" mnemonicParsing="false" onAction="#onSelection" text="Drag Mode">
+                        <RadioButton fx:id="dragModeRadioButton" layoutX="43.0" layoutY="269.0" mnemonicParsing="false" onAction="#onSelectionModeSwitch" text="Drag Mode">
                            <toggleGroup>
                               <ToggleGroup fx:id="toggleGroup" />
                            </toggleGroup></RadioButton>
-                        <RadioButton fx:id="onOffRadioButton" layoutX="113.0" layoutY="119.0" mnemonicParsing="false" onAction="#onSelection" text="On/Off Mode" toggleGroup="$toggleGroup" />
+                        <RadioButton fx:id="onOffRadioButton" layoutX="43.0" layoutY="235.0" mnemonicParsing="false" onAction="#onSelectionModeSwitch" text="On/Off Mode" toggleGroup="$toggleGroup" />
+                        <RadioButton fx:id="englishRadioButton" layoutX="274.0" layoutY="235.0" mnemonicParsing="false" onAction="#languageSelectionAction" text="English">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="languageToggle" />
+                           </toggleGroup>
+                        </RadioButton>
+                        <RadioButton fx:id="japaneseRadioButton" layoutX="274.0" layoutY="269.0" mnemonicParsing="false" onAction="#languageSelectionAction" text="Japanese" toggleGroup="$languageToggle" />
                      </children>
                   </AnchorPane>
               </content>

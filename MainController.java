@@ -107,10 +107,60 @@ public class MainController {
     @FXML
     private RadioButton onOffRadioButton;
     
+    @FXML
+    private RadioButton englishRadioButton;
+
+    @FXML
+    private ToggleGroup languageToggle;
+
+    @FXML
+    private RadioButton japaneseRadioButton;
+
+    @FXML
+    void languageSelectionAction(ActionEvent event) {
+    	RadioButton r = (RadioButton)event.getTarget();
+    	if(r.equals(englishRadioButton)){
+    			System.out.println("English button selected");
+    			setToEnglish();
+    		}
+    	if(r.isSelected()){
+    		if(r.equals(japaneseRadioButton)){
+    			System.out.println("Japanese button selected");
+    			setToJapanese();
+    		}
+    	}
+    }
+    
+    
+    
+    
+    
+    
     Boolean dragIsEnabled = false;
     
+//    @FXML
+//    void onSelection(ActionEvent event){
+//    	RadioButton r = (RadioButton)event.getTarget();
+//    	
+//    	if(r.isSelected()){
+//    		if(r.getText().equals("On/Off Mode")){
+//    			dragIsEnabled = false;
+//    			System.out.println(this.dragIsEnabled);
+//    		}
+//    		else{
+//    			dragIsEnabled = true;
+//    			System.out.println(this.dragIsEnabled);
+//    		}
+//    	}
+//    }
+    
     @FXML
-    void onSelection(ActionEvent event){
+    void onSelectionGraphToggles(ActionEvent event) {
+
+    }
+
+    @FXML
+    void onSelectionModeSwitch(ActionEvent event) {
     	RadioButton r = (RadioButton)event.getTarget();
     	
     	if(r.isSelected()){
@@ -135,6 +185,21 @@ public class MainController {
     private ArrayList<Integer> Ctest28values = new ArrayList<Integer>();
     private ArrayList<Integer> Etest28values = new ArrayList<Integer>();
     
+    public void setGraphArraysWithRandomNumber(){
+    	Wtest28values.clear();
+    	Ctest28values.clear();
+    	Etest28values.clear();
+		
+    	for (int i = 0; i < 28; i++) {
+    		Wtest28values.add((int)(Math.random() * 20));
+		}
+    	for (int i = 0; i < 28; i++) {
+    		Ctest28values.add((int)(Math.random() * 20));
+		}
+    	for (int i = 0; i < 28; i++) {
+    		Etest28values.add((int)(Math.random() * 20));
+		}
+    }
     
     public ArrayList<clickableLight> getLightList(){
     	return this.lightList;
@@ -147,19 +212,14 @@ public class MainController {
     public void initialize()
 	{
     	
-    	for (int i = 0; i < 28; i++) {
-    		Wtest28values.add((int)(Math.random() * 20));
-		}
-    	for (int i = 0; i < 28; i++) {
-    		Ctest28values.add((int)(Math.random() * 20));
-		}
-    	for (int i = 0; i < 28; i++) {
-    		Etest28values.add((int)(Math.random() * 20));
-		}
+    	setGraphArraysWithRandomNumber();
+    	
+//    	this.graphToggle.
     	
     	//Starts the application off with a radio button selected for each toggle group
-    	this.sixMonthsRadioButton.setSelected(true);
-    	this.onOffRadioButton.setSelected(true);
+    	sixMonthsRadioButton.setSelected(true);
+    	onOffRadioButton.setSelected(true);
+    	englishRadioButton.setSelected(true);
     	//Starts the application off with a radio button selected for each toggle group
     	
     	
@@ -199,6 +259,8 @@ public class MainController {
         GraphicsContext graph_canvas = graphCanvas.getGraphicsContext2D();
         GraphicsContext bgGraphCanvas = backgroundGraphCanvas.getGraphicsContext2D();
         //Creates graphics objects to draw in the canvas
+        
+        
         
         
         ////////////////////////////////////////////////////////////////////////
@@ -247,8 +309,56 @@ public class MainController {
         });
         //Event handlers from click/drag appliances
         ////////////////////////////////////////////////////////////////////////
+        
+        
+        
+ 		///////////////////////////////////////////////////////////////////////
+        //Event Handlers for graph radio buttons
+        this.sevenDayRadioButton.selectedProperty().addListener(event->{
+        	if(this.sevenDayRadioButton.isSelected()){
+        		System.out.println("7 days selected");
+        		this.setGraphArraysWithRandomNumber();
+        		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
+                		Wtest28values,
+                		Etest28values,
+                		Ctest28values);
+        	}
+        });
+        this.sixMonthsRadioButton.selectedProperty().addListener(event->{
+        	if(this.sixMonthsRadioButton.isSelected()){
+        		System.out.println("6 Month selected");
+        		this.setGraphArraysWithRandomNumber();
+        		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
+                		Wtest28values,
+                		Etest28values,
+                		Ctest28values);
+        	}
+        });
+        this.fourWeeksRadioButton.selectedProperty().addListener(event->{
+        	if(this.fourWeeksRadioButton.isSelected()){
+        		System.out.println("4 weeks selected");
+        		this.setGraphArraysWithRandomNumber();
+        		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
+                		Wtest28values,
+                		Etest28values,
+                		Ctest28values);
+        	}
+        });
+        this.twelveMonthsRadioButton.selectedProperty().addListener(event->{
+        	if(this.twelveMonthsRadioButton.isSelected()){
+        		System.out.println("12 months selected");
+        		this.setGraphArraysWithRandomNumber();
+        		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
+                		Wtest28values,
+                		Etest28values,
+                		Ctest28values);
+        	}
+        });
+        //Event Handlers for graph radio buttons
+        ///////////////////////////////////////////////////////////////////////
 
 
+        
         //////////////////////////////////////////////////////////////
         //Drawing
         bgGraphCanvas.setFill(new LinearGradient(0, 0, 1, 1, true,
@@ -286,7 +396,7 @@ public class MainController {
         
         
         //Graph page drawing
-        graphDrawing.drawGraph(graph_canvas, (int)canvas.getWidth(), (int)canvas.getHeight(), 
+        graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
         		Wtest28values,
         		Etest28values,
         		Ctest28values);
@@ -307,9 +417,12 @@ public class MainController {
     //Various Methods
     
     public void drawHouse(GraphicsContext gc){
-    	String imagePath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/ld_house3.png";
+    	String imagePath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/HouseMap_CloseUp_300dpi.png";
+    	String houseLegendPath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/Light_legend.png";
     	Image image = new Image(imagePath);
+    	Image lightLegend = new Image(houseLegendPath);
     	gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
+    	gc.drawImage(lightLegend, 475, 0, 150, 100);
     }
 
     public clickableLight lightThatWasSelected(ArrayList<clickableLight> lst, int x, int y){
@@ -465,6 +578,46 @@ public class MainController {
     	gc.fillText("T", x_pos + 5, y_pos + 22);
     	gc.fillText("V", x_pos + 5, y_pos + 34);
     }
+    
+    public void setToEnglish(){
+    	TemperatureLabel.setText("Temperature");
+    	InternalLabel.setText("Internal");
+    	ExternalLabel.setText("External");
+    	HVACLabel.setText("HVAC");
+    	powerCostEstimationLabel.setText("Power Cost Estimation");
+    	monthlyLabel.setText("Monthly");
+    	weeklyLabel.setText("Weekly");
+    	yearlyLabel.setText("Yearly");
+    	sevenDayRadioButton.setText("7 Days");
+    	fourWeeksRadioButton.setText("4 Weeks");
+    	sixMonthsRadioButton.setText("6 Months");
+    	twelveMonthsRadioButton.setText("12 Months");
+    	dragModeRadioButton.setText("Drag Mode");
+    	onOffRadioButton.setText("On/Off Mode");
+    	englishRadioButton.setText("English");
+    	japaneseRadioButton.setText("Japanese");
+    }
+    
+    public void setToJapanese(){
+    	TemperatureLabel.setText("気温");
+    	InternalLabel.setText("内");
+    	ExternalLabel.setText("外");
+    	HVACLabel.setText("冷暖房");
+    	powerCostEstimationLabel.setText("電力コストの見積もり");
+    	monthlyLabel.setText("毎月");
+    	weeklyLabel.setText("毎週");
+    	yearlyLabel.setText("毎年");
+    	sevenDayRadioButton.setText("週間");
+    	fourWeeksRadioButton.setText("ヶ月");
+    	sixMonthsRadioButton.setText("6ヶ月");
+    	twelveMonthsRadioButton.setText("年間");
+    	dragModeRadioButton.setText("ラッグモード");
+    	onOffRadioButton.setText("オン/オフモード");
+    	englishRadioButton.setText("英語");
+    	japaneseRadioButton.setText("日本語");
+    }
+    
+    
     
 
 
