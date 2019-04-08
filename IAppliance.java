@@ -1,6 +1,9 @@
 package cap_stone;
 
 public interface IAppliance {
+	
+	public String getType();
+	public void setType(String type);
 
 	public String getName();
 	public void setName(String name);

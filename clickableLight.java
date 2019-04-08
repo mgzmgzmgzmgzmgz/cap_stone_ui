@@ -9,6 +9,8 @@ public class clickableLight implements IAppliance{
 		this.isOn = isOn;
 	}
 	
+	public String getType(){return this.type;}
+	public void setType(String type){this.type = type;}
 	
 	public String getName() {return name;}
 	public void setName(String name) {this.name = name;}
@@ -35,4 +37,5 @@ public class clickableLight implements IAppliance{
 	private int yPos;
 	private boolean isOn;
 	private String name;
+	private String type = "Light";
 }
