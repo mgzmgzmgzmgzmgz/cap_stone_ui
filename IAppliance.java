@@ -1,8 +1,6 @@
 package cap_stone;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public interface IAppliance {
@@ -14,6 +12,10 @@ public interface IAppliance {
 	public String getName();
 	public void setName(String name);
 	public StringProperty nameProperty();
+	
+	public String getIsOnString();
+	public void setIsOnString(String name);
+	public StringProperty isOnStringProperty();
 	
 	public int getxPos();
 	public void setxPos(int xPos);
