@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -22,7 +25,7 @@
    <children>
       <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-          <Tab text="House View">
+          <Tab fx:id="houseViewTab" text="House View">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -45,7 +48,9 @@
                                     <Label fx:id="HVACLabel" layoutX="11.0" layoutY="109.0" text="HVAC" />
                                     <TextField fx:id="internalTempTextField" layoutX="81.0" layoutY="44.0" />
                                     <TextField fx:id="externalTempTextField" layoutX="81.0" layoutY="74.0" />
-                                    <TextField fx:id="HVACTextField" layoutX="81.0" layoutY="104.0" />
+                                    <TextField fx:id="HVACTextField" layoutX="81.0" layoutY="104.0" prefHeight="27.0" prefWidth="78.0" />
+                                    <Button fx:id="plusButton" layoutX="159.0" layoutY="104.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="46.0" text="+" />
+                                    <Button fx:id="minusButton" layoutX="205.0" layoutY="104.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="40.0" text="-" />
                                  </children>
                               </AnchorPane>
                               <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
@@ -66,7 +71,7 @@
                   </AnchorPane>
             </content>
           </Tab>
-          <Tab text="Spending Graph">
+          <Tab fx:id="graphTab" text="Spending Graph">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -81,28 +86,38 @@
                         <RadioButton fx:id="twelveMonthsRadioButton" layoutX="103.0" layoutY="487.0" mnemonicParsing="false" text="12 Months" toggleGroup="$graphToggle" />
                         <Label fx:id="maxGraphValues" layoutX="13.0" layoutY="14.0" prefHeight="17.0" prefWidth="143.0" text="Label" />
                         <Label fx:id="midGraphVal" layoutX="13.0" layoutY="192.0" prefHeight="17.0" prefWidth="143.0" text="Label" />
-                        <Label fx:id="midGraphVal1" layoutX="122.0" layoutY="370.0" prefHeight="17.0" prefWidth="22.0" text="0" />
-                        <Label fx:id="halfGraphTimeLabel" layoutX="384.0" layoutY="409.0" text="Label" />
-                        <Label fx:id="graphTimeLabel" layoutX="593.0" layoutY="409.0" text="Label" />
-                        <Label fx:id="midGraphVal11" layoutX="158.0" layoutY="401.0" prefHeight="17.0" prefWidth="22.0" text="0" />
+                        <Label fx:id="midGraphVal1" layoutX="122.0" layoutY="370.0" prefHeight="17.0" prefWidth="22.0" text="0--" />
+                        <Label fx:id="halfGraphTimeLabel" layoutX="384.0" layoutY="393.0" text="Label" />
+                        <Label fx:id="graphTimeLabel" layoutX="592.0" layoutY="393.0" text="Label" />
+                        <Label fx:id="midGraphVal11" layoutX="158.0" layoutY="393.0" prefHeight="17.0" prefWidth="22.0" text="0" />
                      </children></AnchorPane>
             </content>
           </Tab>
-            <Tab text="Administration">
+            <Tab fx:id="adminTab" text="Administration">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <RadioButton fx:id="dragModeRadioButton" layoutX="43.0" layoutY="269.0" mnemonicParsing="false" onAction="#onSelectionModeSwitch" text="Drag Mode">
+                        <RadioButton fx:id="dragModeRadioButton" layoutX="43.0" layoutY="493.0" mnemonicParsing="false" onAction="#onSelectionModeSwitch" text="Drag Mode">
                            <toggleGroup>
                               <ToggleGroup fx:id="toggleGroup" />
                            </toggleGroup></RadioButton>
-                        <RadioButton fx:id="onOffRadioButton" layoutX="43.0" layoutY="235.0" mnemonicParsing="false" onAction="#onSelectionModeSwitch" text="On/Off Mode" toggleGroup="$toggleGroup" />
-                        <RadioButton fx:id="englishRadioButton" layoutX="274.0" layoutY="235.0" mnemonicParsing="false" onAction="#languageSelectionAction" text="English">
+                        <RadioButton fx:id="onOffRadioButton" layoutX="43.0" layoutY="458.0" mnemonicParsing="false" onAction="#onSelectionModeSwitch" text="On/Off Mode" toggleGroup="$toggleGroup" />
+                        <RadioButton fx:id="englishRadioButton" layoutX="226.0" layoutY="458.0" mnemonicParsing="false" text="English">
                            <toggleGroup>
                               <ToggleGroup fx:id="languageToggle" />
                            </toggleGroup>
                         </RadioButton>
-                        <RadioButton fx:id="japaneseRadioButton" layoutX="274.0" layoutY="269.0" mnemonicParsing="false" onAction="#languageSelectionAction" text="Japanese" toggleGroup="$languageToggle" />
+                        <RadioButton fx:id="japaneseRadioButton" layoutX="226.0" layoutY="493.0" mnemonicParsing="false" text="Japanese" toggleGroup="$languageToggle" />
+                        <Label fx:id="modeSelectionLabel" layoutX="47.0" layoutY="426.0" text="Mode Selection" />
+                        <Label fx:id="langaugeSelectionLabel" layoutX="207.0" layoutY="426.0" text="Language Selection" />
+                        <TableView fx:id="sensorTable" layoutX="14.0" layoutY="14.0" prefHeight="377.0" prefWidth="604.0">
+                          <columns>
+                            <TableColumn fx:id="typeColumn" prefWidth="159.0" text="Type" />
+                            <TableColumn fx:id="descriptionColumn" prefWidth="308.0" text="Description" />
+                              <TableColumn fx:id="statusColumn" prefWidth="136.0" text="On/Open" />
+                          </columns>
+                        </TableView>
+                        <Button fx:id="switchSelectedButton" layoutX="501.0" layoutY="399.0" mnemonicParsing="false" text="Switch Selected" />
                      </children>
                   </AnchorPane>
               </content>

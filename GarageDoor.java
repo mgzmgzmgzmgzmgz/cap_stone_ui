@@ -5,9 +5,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class Television implements IAppliance{
+public class GarageDoor implements IAppliance{
 
-	public Television(String name, int xPos, int yPos, boolean isOn){
+	public GarageDoor(String name, int xPos, int yPos, boolean isOn){
 		this.setName(name);
 		this.xPos = xPos;
 		this.yPos = yPos;
@@ -37,8 +37,9 @@ public class Television implements IAppliance{
 		else{this.isOn.set(true);}
 	}
 
+	
 	public void switchLangauge(){
-		if(type.get().equals("TV")){
+		if(type.get().equals("GarageDoor")){
 			type = japaneseType;
 		}
 		else{
@@ -47,12 +48,11 @@ public class Television implements IAppliance{
 	}
 
 
-
 	private int xPos;
 	private int yPos;
 	private ObjectProperty<Boolean> isOn = new SimpleObjectProperty<Boolean>(null);
 	private StringProperty name = new SimpleStringProperty();
-	private StringProperty type = new SimpleStringProperty("TV");
-	private StringProperty englishType = new SimpleStringProperty("TV");
-	private StringProperty japaneseType = new SimpleStringProperty("テレビ");
+	private StringProperty type = new SimpleStringProperty("GarageDoor");
+	private StringProperty englishType = new SimpleStringProperty("GarageDoor");
+	private StringProperty japaneseType = new SimpleStringProperty("ガレージのドア");
 }

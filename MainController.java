@@ -2,7 +2,13 @@ package cap_stone;
 
 import java.util.ArrayList;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -12,6 +18,9 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -127,30 +136,63 @@ public class MainController {
 
     @FXML
     private Label graphTimeLabel;
+    
+    @FXML
+    private Label modeSelectionLabel;
 
     @FXML
-    void languageSelectionAction(ActionEvent event) {
-    	RadioButton r = (RadioButton)event.getTarget();
-    	if(r.equals(englishRadioButton)){
-    			System.out.println("English button selected");
-    			japIsSelected = false;
-    			setToEnglish();
-    			setTimeLabels(selectedGraphTimeFrame);
-    		}
-    	if(r.isSelected()){
-    		if(r.equals(japaneseRadioButton)){
-    			System.out.println("Japanese button selected");
-    			japIsSelected = true;
-    			setToJapanese();
-    			setTimeLabels(selectedGraphTimeFrame);
-    		}
-    	}
-    }
+    private Label langaugeSelectionLabel;
+    
+    @FXML
+    private TableView<IAppliance> sensorTable;
 
     @FXML
-    void onSelectionGraphToggles(ActionEvent event) {
+    private TableColumn<IAppliance, String> typeColumn;
 
-    }
+    @FXML
+    private TableColumn<IAppliance, String> descriptionColumn;
+
+    @FXML
+    private TableColumn<IAppliance, Boolean> statusColumn;
+
+    @FXML
+    private Button switchSelectedButton;
+    
+    @FXML
+    private Tab adminTab;
+    
+    @FXML
+    private Tab graphTab;
+    
+    @FXML
+    private Tab houseViewTab;
+    
+    @FXML
+    private Button plusButton;
+    
+    @FXML
+    private Button minusButton;
+
+
+//    @FXML
+//    void languageSelectionAction(ActionEvent event) {
+//    	RadioButton r = (RadioButton)event.getTarget();
+//    	if(r.equals(englishRadioButton)){
+//    			System.out.println("English button selected");
+//    			japIsSelected = false;
+//    			setToEnglish();
+//    			setTimeLabels(selectedGraphTimeFrame);
+//    		}
+//    	if(r.isSelected()){
+//    		if(r.equals(japaneseRadioButton)){
+//    			System.out.println("Japanese button selected");
+//    			japIsSelected = true;
+//    			setToJapanese();
+//    			setTimeLabels(selectedGraphTimeFrame);
+//    		}
+//    	}
+//    }
+    
 
     @FXML
     void onSelectionModeSwitch(ActionEvent event) {
@@ -168,19 +210,22 @@ public class MainController {
     	}
     }
     
+//    private ObjectProperty<String> HVACint = new SimpleObjectProperty<String>("69");
     private int selectedGraphTimeFrame = 1;
     private Boolean japIsSelected = false;
     private Boolean dragIsEnabled = false;
     private IAppliance nullLight = new clickableLight("Null", 0, 0, true);
     private IAppliance selectedAppliance;
-    private ArrayList<IAppliance> applianceList;
+    private IAppliance currentAppliance = new clickableLight("Null", 0, 0, true);
+//    private ArrayList<IAppliance> applianceList;
+    private ObservableList<IAppliance> applianceList = FXCollections.observableArrayList();
     private GraphDrawingClass graphDrawing = new GraphDrawingClass();
     
     private ArrayList<Integer> Wtest28values = new ArrayList<Integer>();
     private ArrayList<Integer> Ctest28values = new ArrayList<Integer>();
     private ArrayList<Integer> Etest28values = new ArrayList<Integer>();
     
-    public ArrayList<IAppliance> getApplianceList(){
+    public ObservableList<IAppliance> getApplianceList(){
     	return this.applianceList;
     }
     
@@ -190,11 +235,61 @@ public class MainController {
     
     public void initialize()
     {
+    	//Creates graphics objects to draw in the canvas
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        GraphicsContext gc_bl = bottom_left_canvas.getGraphicsContext2D();
+        GraphicsContext gc_br = bottom_right_canvas.getGraphicsContext2D();
+        GraphicsContext graph_canvas = graphCanvas.getGraphicsContext2D();
+        GraphicsContext bgGraphCanvas = backgroundGraphCanvas.getGraphicsContext2D();
+        //Creates graphics objects to draw in the canvas
+
+        
+    	this.internalTempTextField.setText("69");
+    	this.internalTempTextField.editableProperty().set(false);
+    	this.externalTempTextField.setText("62");
+    	this.externalTempTextField.editableProperty().set(false);
+    	this.HVACTextField.setText("69");
+    	
+    	
     	setGraphArraysWithRandomNumber();
     	updateGraphValLabels();
     	
+    	this.sensorTable.setItems(applianceList);
+    	this.descriptionColumn.setCellValueFactory(rowData -> rowData.getValue().nameProperty());
+    	this.statusColumn.setCellValueFactory(rowData -> rowData.getValue().isOnProperty());
+    	this.typeColumn.setCellValueFactory(rowData -> rowData.getValue().typeProperty());
     	
-//    	this.graphToggle.
+    	this.sensorTable.getSelectionModel().selectedItemProperty().addListener(
+    			(ObservableValue<? extends IAppliance> observable, IAppliance newValue, IAppliance oldValue)->
+    			{ currentAppliance = oldValue;
+    			System.out.println(oldValue.getName());
+    			System.out.println(this.currentAppliance.getName());});
+    	
+    	
+    	/////////////////////////////////////////////////////////////////////////////////////////
+    	//Button Event Handlers
+    	this.minusButton.setOnAction(event->{
+        	System.out.println("Clicked");
+        	int i = Integer.parseInt(HVACTextField.textProperty().get());
+        	i = i - 1;
+        	HVACTextField.textProperty().set(""+i);
+    	});
+    	
+    	this.plusButton.setOnAction(event->{
+        	System.out.println("Clicked");
+        	int i = Integer.parseInt(HVACTextField.textProperty().get());
+        	i = i + 1;
+        	HVACTextField.textProperty().set(""+i);
+    	});
+        this.switchSelectedButton.setOnAction(event ->{
+        	this.currentAppliance.switch_();
+        	drawHouse(gc);
+        	drawAllAppliances(gc, applianceList);
+        });
+    	//Button Event Handlers
+    	/////////////////////////////////////////////////////////////////////////////////////////
+    	
+    	
     	
     	//Starts the application off with a radio button selected for each toggle group
     	sixMonthsRadioButton.setSelected(true);
@@ -204,42 +299,34 @@ public class MainController {
 		this.halfGraphTimeLabel.setText("3 Months");
     	//Starts the application off with a radio button selected for each toggle group
     	
+		
     	
     	////////////////////////////////////////////////////////////////////////
     	//Initializes the appliances	
-    	applianceList = new ArrayList<IAppliance>();
-    	applianceList.add(new clickableLight("Master Bedroom - Top Right", 43, 50, true));
-    	applianceList.add(new clickableLight("Master Bedroom - Bottom Right", 43,140,true));
-    	applianceList.add(new clickableLight("Master Bedroom - Middle", 100,97,true));
-    	applianceList.add(new clickableLight("Living Room - Center", 310, 235,true));
-    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Left", 43, 300, true));
-    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Right", 113, 300, true));
-    	applianceList.add(new clickableLight("Kids Bedroom - Middle", 80, 250, true));
-    	applianceList.add(new clickableLight("Closet - Living Room - Left", 138, 300, true));
-    	applianceList.add(new clickableLight("Bottom Bathroom", 155, 225, true));
+    	applianceList.add(new clickableLight("Master Bedroom - Top Right", 77, 47, true));
+    	applianceList.add(new clickableLight("Master Bedroom - Bottom Right", 76,116,true));
+    	applianceList.add(new clickableLight("Master Bedroom - Middle", 116,76,true));
+    	applianceList.add(new clickableLight("Living Room - Center", 342, 200,true));
+    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Left", 94, 257, true));
+    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Right", 131, 257, true));
+    	applianceList.add(new clickableLight("Kids Bedroom - Middle", 104, 206, true));
+    	applianceList.add(new clickableLight("Closet - Living Room - Left", 170, 259, true));
+    	applianceList.add(new clickableLight("Bottom Bathroom", 186, 191, true));
     	applianceList.add(new clickableLight("Living Room - Top Left", 278, 162, true));
-    	applianceList.add(new clickableLight("Kitchen", 345, 97, true));
-    	applianceList.add(new clickableLight("Top Bathroom", 180, 80 ,true));
-    	applianceList.add(new clickableLight("Closet Office", 173, 135, true));
-    	applianceList.add(new clickableLight("Office Top", 270, 50, true));
-    	applianceList.add(new clickableLight("Office Bottom", 260,135,true));
-    	applianceList.add(new clickableLight("Garage", 500,200,true));
-    	applianceList.add(new Television("TV - Living Room", 200, 240, true));
-    	applianceList.add(new Television("TV - Living Room", 140, 100, true));
+    	applianceList.add(new clickableLight("Kitchen", 345, 87, true));
+    	applianceList.add(new clickableLight("Top Bathroom", 209, 31 ,true));
+    	applianceList.add(new clickableLight("Closet Office", 185, 87, true));
+    	applianceList.add(new clickableLight("Office Top", 282, 45, true));
+    	applianceList.add(new clickableLight("Office Bottom", 246,80,true));
+    	applianceList.add(new clickableLight("Garage", 476,200,true));
+    	applianceList.add(new Television("TV - Living Room", 225, 178, true));
+    	applianceList.add(new Television("TV - Master Bedroom Room", 163, 52, true));
+    	applianceList.add(new GarageDoor("Garagedoor - Right", 510, 258, true));
+    	applianceList.add(new GarageDoor("Garagedoor - Left", 409, 258, true));
     	//Initializes the appliances
     	////////////////////////////////////////////////////////////////////////	
+
     	
-    	
-    	//Creates graphics objects to draw in the canvas
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        GraphicsContext gc_bl = bottom_left_canvas.getGraphicsContext2D();
-        GraphicsContext gc_br = bottom_right_canvas.getGraphicsContext2D();
-        GraphicsContext graph_canvas = graphCanvas.getGraphicsContext2D();
-        GraphicsContext bgGraphCanvas = backgroundGraphCanvas.getGraphicsContext2D();
-        //Creates graphics objects to draw in the canvas
-        
-        
-        
         
         ////////////////////////////////////////////////////////////////////////
         //Event handlers from click/drag appliances
@@ -247,9 +334,14 @@ public class MainController {
         	       new EventHandler<MouseEvent>() {
         	           @Override
         	           public void handle(MouseEvent e) {
+//        	        	   updateSaveFiles();
         	        	   if (dragIsEnabled){
         	        		   selectedAppliance = applianceThatWasSelected(applianceList, (int)e.getX(), (int) e.getY());
         	        		   System.out.println(selectedAppliance.getName());
+        	        		   System.out.println("x");
+        	        		   System.out.println(selectedAppliance.getxPos());
+        	        		   System.out.println("y");
+        	        		   System.out.println(selectedAppliance.getyPos());
         	        	   }
         	        	   else{
         	        		   updateAppliances(applianceList, (int)e.getX(), (int) e.getY());
@@ -284,14 +376,12 @@ public class MainController {
         this.sevenDayRadioButton.selectedProperty().addListener(event->{
         	if(this.sevenDayRadioButton.isSelected()){
         		System.out.println("7 days selected");
-//        		this.Wtest28values = this.water_7_days;
-//        		this.Ctest28values = this.cost_7days;
-//        		this.Etest28values = this.power_7_days;
         		this.setGraphArraysWithRandomNumber();
         		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
                 		Wtest28values,
                 		Etest28values,
-                		Ctest28values);
+                		Ctest28values,
+                		japIsSelected);
         		updateGraphValLabels();
         		selectedGraphTimeFrame = 1;
         		setTimeLabels(selectedGraphTimeFrame);
@@ -304,7 +394,8 @@ public class MainController {
         		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
                 		Wtest28values,
                 		Etest28values,
-                		Ctest28values);
+                		Ctest28values,
+                		japIsSelected);
         	}
         	updateGraphValLabels();
         	selectedGraphTimeFrame = 2;
@@ -317,7 +408,8 @@ public class MainController {
         		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
                 		Wtest28values,
                 		Etest28values,
-                		Ctest28values);
+                		Ctest28values,
+                		japIsSelected);
         	}
         	updateGraphValLabels();
         	selectedGraphTimeFrame = 3;
@@ -330,13 +422,47 @@ public class MainController {
         		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
                 		Wtest28values,
                 		Etest28values,
-                		Ctest28values);
+                		Ctest28values,
+                		japIsSelected);
         	}
         	updateGraphValLabels();
         	selectedGraphTimeFrame = 4;
         	setTimeLabels(selectedGraphTimeFrame);
         });
         //Event Handlers for graph radio buttons
+        ///////////////////////////////////////////////////////////////////////
+        
+        
+        
+        ///////////////////////////////////////////////////////////////////////
+        //Event Handler for language toggles
+        this.languageToggle.selectedToggleProperty().addListener(event ->{
+        	if(englishRadioButton.isSelected()){
+    			System.out.println("English button selected");
+    			japIsSelected = false;
+    			setToEnglish();
+    			setTimeLabels(selectedGraphTimeFrame);
+    			graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
+    	        		Wtest28values,
+    	        		Etest28values,
+    	        		Ctest28values,
+    	        		japIsSelected);
+    			this.sensorTable.refresh();
+    		}
+        	else{
+    			System.out.println("Japanese button selected");
+    			japIsSelected = true;
+    			setToJapanese();
+    			setTimeLabels(selectedGraphTimeFrame);
+    			graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
+    	        		Wtest28values,
+    	        		Etest28values,
+    	        		Ctest28values,
+    	        		japIsSelected);
+    			this.sensorTable.refresh();
+        	}
+        });
+        //Event Handler for language toggles
         ///////////////////////////////////////////////////////////////////////
 
 
@@ -365,16 +491,12 @@ public class MainController {
                 new Stop(1, Color.BISQUE)));
         
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        gc_bl.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        gc_br.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         bgGraphCanvas.fillRect(0, 0, backgroundGraphCanvas.getWidth(), backgroundGraphCanvas.getHeight());
         
         
         //Interface drawing
         drawHouse(gc);
-//        drawAllTVs(gc, tvList);
-//        drawAllLights(gc, lightList);
-        this.drawAllAppliances(gc, applianceList);
+        drawAllAppliances(gc, applianceList);
         //Interface drawing
         
         
@@ -382,13 +504,13 @@ public class MainController {
         graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
         		Wtest28values,
         		Etest28values,
-        		Ctest28values);
+        		Ctest28values,
+        		japIsSelected);
         //Graph Page drawing
         
         
         //Drawing
         ////////////////////////////////////////////////////////////////////
- 
 	}
     
     //initialize block
@@ -400,20 +522,17 @@ public class MainController {
     //Various Methods
     
     public void drawHouse(GraphicsContext gc){
-//    	String imagePath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/HouseMap_CloseUp_300dpi.png";
     	String imagePath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/resized_House_closeup.png";
-    	String houseLegendPath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/Light_legend.png";
     	Image image = new Image(imagePath);
-    	Image lightLegend = new Image(houseLegendPath);
     	gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
-    	gc.drawImage(lightLegend, 475, 0, 150, 100);
     }
     
-    public IAppliance applianceThatWasSelected(ArrayList<IAppliance> lst, int x, int y){
+    public IAppliance applianceThatWasSelected(ObservableList<IAppliance> lst, int x, int y){
     	IAppliance appliance = nullLight;
     	for (int i = 0; i < lst.size(); i++) {
     		IAppliance a = lst.get(i);
-    		if(a.getType().equals("Light")){
+    		System.out.println(a.getType());
+    		if(a.getType().equals("Light") || a.getType().equals("光")){
     			if((a.getxPos() <= x) 
     				&& 
     				(a.getxPos() + 20 >= x)
@@ -425,7 +544,7 @@ public class MainController {
     			return a;
     			}
     		}
-    		if(a.getType().equals("TV")){
+    		if(a.getType().equals("TV") || a.getType().equals("テレビ")){
     			if((a.getxPos() <= x) 
     				&& 
     				(a.getxPos() + 20 >= x)
@@ -433,7 +552,19 @@ public class MainController {
     				(a.getyPos() <= y)
     				&&
     				(a.getyPos() + 49 >= y )){
-    				System.out.println("HIT");
+    			appliance = a;
+    			return a;
+    			}
+    		}
+    		if(a.getType().equals("GarageDoor") || a.getType().equals("ガレージのドア")){
+    			if((a.getyPos() <= y) 
+    				&& 
+    				(a.getyPos() + 20 >= y)
+    				&& 
+    				(a.getxPos() <= x)
+    				&&
+    				(a.getxPos() + 49 >= x )){
+    				System.out.println("GD HIT");
     			appliance = a;
     			return a;
     			}
@@ -442,23 +573,27 @@ public class MainController {
     	return appliance;
     }
 
-    public void updateAppliances(ArrayList<IAppliance> lst, int x, int y){
+    public void updateAppliances(ObservableList<IAppliance> lst, int x, int y){
     	IAppliance a = applianceThatWasSelected(lst, x, y);
     	if(!a.equals(this.nullLight)){
     		a.switch_();
     	}
     }
       
-    public void drawAllAppliances(GraphicsContext gc, ArrayList<IAppliance> lst){
+    public void drawAllAppliances(GraphicsContext gc, ObservableList<IAppliance> lst){
     	for (int i = 0; i < lst.size(); i++) {
     		IAppliance a = lst.get(i);
-    		if(a.getType().equals("Light")){
+    		if(a.getType().equals("Light") || a.getType().equals("光")){
     			if(a.isOn()){drawOnLight(gc, a.getxPos(), a.getyPos());}
     			else{drawOffLight(gc, a.getxPos(), a.getyPos());}
     		}
-    		if(a.getType().equals("TV")){
+    		if(a.getType().equals("TV") || a.getType().equals("テレビ")){
     			if(a.isOn()){drawOnTV(gc, a.getxPos(), a.getyPos());}
     			else{drawOffTV(gc, a.getxPos(), a.getyPos());}
+    		}
+    		if(a.getType().equals("GarageDoor") || a.getType().equals("ガレージのドア")){
+    			if(a.isOn()){drawOpenGarageDoor(gc, a.getxPos(), a.getyPos());}
+    			else{drawClosedGarageDoor(gc, a.getxPos(), a.getyPos());}
     		}
 		}
     }
@@ -501,6 +636,26 @@ public class MainController {
     	gc.fillText("V", x_pos + 5, y_pos + 34);
     }
     
+    public void drawOpenGarageDoor(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.BLACK);
+    	gc.fillRect(x_pos-1, y_pos-1, 49, 19);
+    	gc.setFill(Color.YELLOW);
+    	gc.fillRect(x_pos, y_pos, 47, 17);
+    	gc.setFill(Color.BLACK);
+    	gc.fillText("G", x_pos + 12, y_pos + 15);
+    	gc.fillText("D", x_pos + 24, y_pos + 15);
+    }
+    
+    public void drawClosedGarageDoor(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.WHITE);
+    	gc.fillRect(x_pos-1, y_pos-1, 49, 19);
+    	gc.setFill(Color.BLACK);
+    	gc.fillRect(x_pos, y_pos, 47, 17);
+    	gc.setFill(Color.WHITE);
+    	gc.fillText("G", x_pos + 12, y_pos + 15);
+    	gc.fillText("D", x_pos + 24, y_pos + 15);
+    }
+    
     public void setToEnglish(){
     	TemperatureLabel.setText("Temperature");
     	InternalLabel.setText("Internal");
@@ -518,6 +673,19 @@ public class MainController {
     	onOffRadioButton.setText("On/Off Mode");
     	englishRadioButton.setText("English");
     	japaneseRadioButton.setText("Japanese");
+    	this.modeSelectionLabel.setText("Mode Selection");
+    	this.langaugeSelectionLabel.setText("Language Selection");
+    	this.switchSelectedButton.setText("Switch Selected");
+    	this.descriptionColumn.setText("Description");
+    	this.statusColumn.setText("On/Open");
+    	this.typeColumn.setText("Type");
+    	this.houseViewTab.setText("House View");
+    	this.adminTab.setText("Administration");
+    	this.graphTab.setText("Spending Graph");
+    	
+    	for (int i = 0; i < this.applianceList.size(); i++) {
+    		applianceList.get(i).switchLangauge();
+		}
     }
     
     public void setToJapanese(){
@@ -537,6 +705,19 @@ public class MainController {
     	onOffRadioButton.setText("オン/オフモード");
     	englishRadioButton.setText("英語");
     	japaneseRadioButton.setText("日本語");
+    	this.modeSelectionLabel.setText("モード選択");
+    	this.langaugeSelectionLabel.setText("言語選択");
+    	this.switchSelectedButton.setText("択したスイッチ");
+    	this.descriptionColumn.setText("説明");
+    	this.statusColumn.setText("オン/オープン");
+    	this.typeColumn.setText("タイプ");
+    	this.houseViewTab.setText("ハウスビュー");
+    	this.adminTab.setText("管理");
+    	this.graphTab.setText("支出グラフ");
+    	
+    	for (int i = 0; i < this.applianceList.size(); i++) {
+    		applianceList.get(i).switchLangauge();
+		}
     }
     
     public void updateGraphValLabels(){
@@ -544,8 +725,8 @@ public class MainController {
     	int elecMax = graphDrawing.getMax(Etest28values);
     	int costMax = graphDrawing.getMax(Ctest28values);
     	
-    	this.maxGraphValues.setText(waterMax + "gal, " + elecMax + "kwh, " + "$" + costMax);
-    	this.midGraphVal.setText(waterMax/2 + "gal, " + elecMax/2 + "kwh, " + "$" + costMax/2);
+    	this.maxGraphValues.setText(waterMax + "gal, " + elecMax + "kwh, " + "$" + costMax + "----");
+    	this.midGraphVal.setText(waterMax/2 + "gal, " + elecMax/2 + "kwh, " + "$" + costMax/2 + "----");
     }
     
     public void setGraphArraysWithRandomNumber(){
@@ -617,4 +798,5 @@ public class MainController {
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
+//End of Class
 }

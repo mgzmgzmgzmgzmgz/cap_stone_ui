@@ -1,12 +1,19 @@
 package cap_stone;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+
 public interface IAppliance {
 	
 	public String getType();
 	public void setType(String type);
+	public StringProperty typeProperty();
 
 	public String getName();
 	public void setName(String name);
+	public StringProperty nameProperty();
 	
 	public int getxPos();
 	public void setxPos(int xPos);
@@ -16,6 +23,9 @@ public interface IAppliance {
 
 	public boolean isOn();
 	public void setOn(boolean isOn);
+	public ObjectProperty<Boolean> isOnProperty();
 	
 	public void switch_();
+	
+	public void switchLangauge();
 }
