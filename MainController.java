@@ -2,10 +2,7 @@ package cap_stone;
 
 import java.util.ArrayList;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,7 +11,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.chart.PieChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -22,7 +18,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -30,8 +25,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 
 public class MainController {
 
@@ -144,16 +137,16 @@ public class MainController {
     private Label langaugeSelectionLabel;
     
     @FXML
-    private TableView<IAppliance> sensorTable;
+    private TableView<Appliance> sensorTable;
 
     @FXML
-    private TableColumn<IAppliance, String> typeColumn;
+    private TableColumn<Appliance, String> typeColumn;
 
     @FXML
-    private TableColumn<IAppliance, String> descriptionColumn;
+    private TableColumn<Appliance, String> descriptionColumn;
 
     @FXML
-    private TableColumn<IAppliance, Boolean> statusColumn;
+    private TableColumn<Appliance, String> statusColumn;
 
     @FXML
     private Button switchSelectedButton;
@@ -172,26 +165,6 @@ public class MainController {
     
     @FXML
     private Button minusButton;
-
-
-//    @FXML
-//    void languageSelectionAction(ActionEvent event) {
-//    	RadioButton r = (RadioButton)event.getTarget();
-//    	if(r.equals(englishRadioButton)){
-//    			System.out.println("English button selected");
-//    			japIsSelected = false;
-//    			setToEnglish();
-//    			setTimeLabels(selectedGraphTimeFrame);
-//    		}
-//    	if(r.isSelected()){
-//    		if(r.equals(japaneseRadioButton)){
-//    			System.out.println("Japanese button selected");
-//    			japIsSelected = true;
-//    			setToJapanese();
-//    			setTimeLabels(selectedGraphTimeFrame);
-//    		}
-//    	}
-//    }
     
 
     @FXML
@@ -199,7 +172,7 @@ public class MainController {
     	RadioButton r = (RadioButton)event.getTarget();
     	
     	if(r.isSelected()){
-    		if(r.getText().equals("On/Off Mode")){
+    		if(r.getText().equals("On/Off Mode") || r.getText().equals("オン/オフモード")){
     			dragIsEnabled = false;
     			System.out.println(this.dragIsEnabled);
     		}
@@ -210,22 +183,21 @@ public class MainController {
     	}
     }
     
-//    private ObjectProperty<String> HVACint = new SimpleObjectProperty<String>("69");
+    
     private int selectedGraphTimeFrame = 1;
     private Boolean japIsSelected = false;
     private Boolean dragIsEnabled = false;
-    private IAppliance nullLight = new clickableLight("Null", 0, 0, true);
-    private IAppliance selectedAppliance;
-    private IAppliance currentAppliance = new clickableLight("Null", 0, 0, true);
-//    private ArrayList<IAppliance> applianceList;
-    private ObservableList<IAppliance> applianceList = FXCollections.observableArrayList();
+    private Appliance nullLight = new clickableLight("Null", 0, 0, true, "Null");
+    private Appliance selectedAppliance;
+    private Appliance currentAppliance = new clickableLight("Null", 0, 0, true, "Null");
+    private ObservableList<Appliance> applianceList = FXCollections.observableArrayList();
     private GraphDrawingClass graphDrawing = new GraphDrawingClass();
     
     private ArrayList<Integer> Wtest28values = new ArrayList<Integer>();
     private ArrayList<Integer> Ctest28values = new ArrayList<Integer>();
     private ArrayList<Integer> Etest28values = new ArrayList<Integer>();
     
-    public ObservableList<IAppliance> getApplianceList(){
+    public ObservableList<Appliance> getApplianceList(){
     	return this.applianceList;
     }
     
@@ -256,11 +228,11 @@ public class MainController {
     	
     	this.sensorTable.setItems(applianceList);
     	this.descriptionColumn.setCellValueFactory(rowData -> rowData.getValue().nameProperty());
-    	this.statusColumn.setCellValueFactory(rowData -> rowData.getValue().isOnProperty());
+    	this.statusColumn.setCellValueFactory(rowData -> rowData.getValue().isOnStringProperty());
     	this.typeColumn.setCellValueFactory(rowData -> rowData.getValue().typeProperty());
     	
     	this.sensorTable.getSelectionModel().selectedItemProperty().addListener(
-    			(ObservableValue<? extends IAppliance> observable, IAppliance newValue, IAppliance oldValue)->
+    			(ObservableValue<? extends Appliance> observable, Appliance newValue, Appliance oldValue)->
     			{ currentAppliance = oldValue;
     			System.out.println(oldValue.getName());
     			System.out.println(this.currentAppliance.getName());});
@@ -285,6 +257,7 @@ public class MainController {
         	this.currentAppliance.switch_();
         	drawHouse(gc);
         	drawAllAppliances(gc, applianceList);
+        	this.sensorTable.refresh();
         });
     	//Button Event Handlers
     	/////////////////////////////////////////////////////////////////////////////////////////
@@ -303,26 +276,30 @@ public class MainController {
     	
     	////////////////////////////////////////////////////////////////////////
     	//Initializes the appliances	
-    	applianceList.add(new clickableLight("Master Bedroom - Top Right", 77, 47, true));
-    	applianceList.add(new clickableLight("Master Bedroom - Bottom Right", 76,116,true));
-    	applianceList.add(new clickableLight("Master Bedroom - Middle", 116,76,true));
-    	applianceList.add(new clickableLight("Living Room - Center", 342, 200,true));
-    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Left", 94, 257, true));
-    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Right", 131, 257, true));
-    	applianceList.add(new clickableLight("Kids Bedroom - Middle", 104, 206, true));
-    	applianceList.add(new clickableLight("Closet - Living Room - Left", 170, 259, true));
-    	applianceList.add(new clickableLight("Bottom Bathroom", 186, 191, true));
-    	applianceList.add(new clickableLight("Living Room - Top Left", 278, 162, true));
-    	applianceList.add(new clickableLight("Kitchen", 345, 87, true));
-    	applianceList.add(new clickableLight("Top Bathroom", 209, 31 ,true));
-    	applianceList.add(new clickableLight("Closet Office", 185, 87, true));
-    	applianceList.add(new clickableLight("Office Top", 282, 45, true));
-    	applianceList.add(new clickableLight("Office Bottom", 246,80,true));
-    	applianceList.add(new clickableLight("Garage", 476,200,true));
-    	applianceList.add(new Television("TV - Living Room", 225, 178, true));
-    	applianceList.add(new Television("TV - Master Bedroom Room", 163, 52, true));
-    	applianceList.add(new GarageDoor("Garagedoor - Right", 510, 258, true));
-    	applianceList.add(new GarageDoor("Garagedoor - Left", 409, 258, true));
+    	applianceList.add(new clickableLight("Master Bedroom - Top Right", 77, 47, true, "マスターベッドルーム - 右上"));
+    	applianceList.add(new clickableLight("Master Bedroom - Bottom Right", 76,116,true, "マスターベッドルーム - 右下"));
+    	applianceList.add(new clickableLight("Master Bedroom - Middle", 116,76,true, "マスターベッドルーム - ミドル"));
+    	applianceList.add(new clickableLight("Living Room - Center", 342, 200,true, "リビングルーム - センター"));
+    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Left", 94, 257, true, "キッズベッドルーム - 左下"));
+    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Right", 131, 257, true, "キッズベッドルーム - 右下"));
+    	applianceList.add(new clickableLight("Kids Bedroom - Middle", 104, 206, true, "キッズベッドルーム - ミドル"));
+    	applianceList.add(new clickableLight("Closet - Living Room - Left", 170, 259, true, "クローゼット - リビングルーム - 左"));
+    	applianceList.add(new clickableLight("Bottom Bathroom", 186, 191, true, "下のバスルーム"));
+    	applianceList.add(new clickableLight("Living Room - Top Left", 278, 162, true, "リビングルーム - 左上"));
+    	applianceList.add(new clickableLight("Kitchen", 345, 87, true, "キッチン"));
+    	applianceList.add(new clickableLight("Top Bathroom", 209, 31 ,true, "トップバスルーム"));
+    	applianceList.add(new clickableLight("Closet Office", 185, 87, true, "クローゼット事務所"));
+    	applianceList.add(new clickableLight("Office Top", 282, 45, true, "オフィストップ"));
+    	applianceList.add(new clickableLight("Office Bottom", 246,80,true, "オフィスの下"));
+    	applianceList.add(new clickableLight("Garage", 476,200,true, "ガレージ"));
+    	applianceList.add(new Television("TV - Living Room", 225, 178, true, "テレビ - リビングルーム"));
+    	applianceList.add(new Television("TV - Master Bedroom Room", 163, 52, true, "テレビ - マスターベッドルーム"));
+    	applianceList.add(new GarageDoor("Garagedoor - Right", 510, 258, true, "ガレージドア - 右"));
+    	applianceList.add(new GarageDoor("Garagedoor - Left", 409, 258, true, "ガレージドア - 左"));
+    	
+//    	applianceList.add(new GarageDoor("Window - ", 409, 258, true, "ガレージドア - 左"));
+//    	applianceList.add(new GarageDoor("Garagedoor - Left", 409, 258, true, "ガレージドア - 左"));
+//    	applianceList.add(new GarageDoor("Garagedoor - Left", 409, 258, true, "ガレージドア - 左"));
     	//Initializes the appliances
     	////////////////////////////////////////////////////////////////////////	
 
@@ -527,10 +504,10 @@ public class MainController {
     	gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
     }
     
-    public IAppliance applianceThatWasSelected(ObservableList<IAppliance> lst, int x, int y){
-    	IAppliance appliance = nullLight;
+    public Appliance applianceThatWasSelected(ObservableList<Appliance> lst, int x, int y){
+    	Appliance appliance = nullLight;
     	for (int i = 0; i < lst.size(); i++) {
-    		IAppliance a = lst.get(i);
+    		Appliance a = lst.get(i);
     		System.out.println(a.getType());
     		if(a.getType().equals("Light") || a.getType().equals("光")){
     			if((a.getxPos() <= x) 
@@ -564,7 +541,19 @@ public class MainController {
     				(a.getxPos() <= x)
     				&&
     				(a.getxPos() + 49 >= x )){
-    				System.out.println("GD HIT");
+    			appliance = a;
+    			return a;
+    			}
+    		}
+    		if(a.getType().equals("Window") || a.getType().equals("窓")){
+    			if((a.getyPos() <= y) 
+    				&& 
+    				(a.getyPos() + 20 >= y)
+    				&& 
+    				(a.getxPos() <= x)
+    				&&
+    				(a.getxPos() + 49 >= x )){
+    				System.out.println("W HIT");
     			appliance = a;
     			return a;
     			}
@@ -573,16 +562,16 @@ public class MainController {
     	return appliance;
     }
 
-    public void updateAppliances(ObservableList<IAppliance> lst, int x, int y){
-    	IAppliance a = applianceThatWasSelected(lst, x, y);
+    public void updateAppliances(ObservableList<Appliance> lst, int x, int y){
+    	Appliance a = applianceThatWasSelected(lst, x, y);
     	if(!a.equals(this.nullLight)){
     		a.switch_();
     	}
     }
       
-    public void drawAllAppliances(GraphicsContext gc, ObservableList<IAppliance> lst){
+    public void drawAllAppliances(GraphicsContext gc, ObservableList<Appliance> lst){
     	for (int i = 0; i < lst.size(); i++) {
-    		IAppliance a = lst.get(i);
+    		Appliance a = lst.get(i);
     		if(a.getType().equals("Light") || a.getType().equals("光")){
     			if(a.isOn()){drawOnLight(gc, a.getxPos(), a.getyPos());}
     			else{drawOffLight(gc, a.getxPos(), a.getyPos());}
@@ -594,6 +583,10 @@ public class MainController {
     		if(a.getType().equals("GarageDoor") || a.getType().equals("ガレージのドア")){
     			if(a.isOn()){drawOpenGarageDoor(gc, a.getxPos(), a.getyPos());}
     			else{drawClosedGarageDoor(gc, a.getxPos(), a.getyPos());}
+    		}
+    		if(a.getType().equals("Window") || a.getType().equals("窓")){
+    			if(a.isOn()){drawOpenWindow(gc, a.getxPos(), a.getyPos());}
+    			else{drawClosedWindow(gc, a.getxPos(), a.getyPos());}
     		}
 		}
     }
@@ -654,6 +647,24 @@ public class MainController {
     	gc.setFill(Color.WHITE);
     	gc.fillText("G", x_pos + 12, y_pos + 15);
     	gc.fillText("D", x_pos + 24, y_pos + 15);
+    }
+    
+    public void drawOpenWindow(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.WHITE);
+    	gc.fillRect(x_pos-1, y_pos-1, 49, 19);
+    	gc.setFill(Color.BLACK);
+    	gc.fillRect(x_pos, y_pos, 47, 17);
+    	gc.setFill(Color.WHITE);
+    	gc.fillText("W", x_pos + 12, y_pos + 15);
+    }
+    
+    public void drawClosedWindow(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.WHITE);
+    	gc.fillRect(x_pos-1, y_pos-1, 49, 19);
+    	gc.setFill(Color.BLACK);
+    	gc.fillRect(x_pos, y_pos, 47, 17);
+    	gc.setFill(Color.WHITE);
+    	gc.fillText("W", x_pos + 12, y_pos + 15);
     }
     
     public void setToEnglish(){
