@@ -1,7 +1,7 @@
 package cap_stone;
 
 import java.util.ArrayList;
-
+import java.util.Optional;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -11,7 +11,9 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tab;
@@ -19,6 +21,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -166,6 +169,18 @@ public class MainController {
     @FXML
     private Button minusButton;
     
+    @FXML
+    private Button lightsOnButton;
+
+    @FXML
+    private Button lightsOffButton;
+
+    @FXML
+    private Button waterOffButton;
+
+    @FXML
+    private Button doorsCloseButton;
+    
 
     @FXML
     void onSelectionModeSwitch(ActionEvent event) {
@@ -177,8 +192,31 @@ public class MainController {
     			System.out.println(this.dragIsEnabled);
     		}
     		else{
-    			dragIsEnabled = true;
-    			System.out.println(this.dragIsEnabled);
+    			Alert alert = new Alert(AlertType.CONFIRMATION);
+    			if(japIsSelected)
+    			{
+    				alert.setHeaderText("ドラッグモードを有効にしてよろしいですか?");
+        			alert.setTitle("ドラッグモードを有効にする");
+        			alert.getButtonTypes().remove(0,2);
+        			alert.getButtonTypes().add(0, ButtonType.YES);
+        			alert.getButtonTypes().add(1, ButtonType.NO);
+    			}
+    			else
+    			{
+    				alert.setHeaderText("Are you sure you want to enable Drag Mode?");
+        			alert.setTitle("Enable Drag Mode");
+        			alert.getButtonTypes().remove(0,2);
+        			alert.getButtonTypes().add(0, ButtonType.YES);
+        			alert.getButtonTypes().add(1, ButtonType.NO);
+    			}
+    			Optional<ButtonType> confirmationResponse = alert.showAndWait();
+    			if(confirmationResponse.get() == ButtonType.YES){
+    				dragIsEnabled = true;
+        			System.out.println(this.dragIsEnabled);
+    			}
+    			else{
+    				this.onOffRadioButton.setSelected(true);
+    			}
     		}
     	}
     }
@@ -259,6 +297,55 @@ public class MainController {
         	drawAllAppliances(gc, applianceList);
         	this.sensorTable.refresh();
         });
+        this.lightsOnButton.setOnAction(event ->{
+        	for (int i = 0; i < this.applianceList.size(); i++) {
+				if(this.applianceList.get(i).englishType.get().equals("Light")){
+					System.out.println("A light was found");
+					if(!this.applianceList.get(i).isOn()){
+						this.applianceList.get(i).switch_();
+					}
+				}
+			}
+        	drawHouse(gc);
+        	drawAllAppliances(gc, applianceList);
+        	this.sensorTable.refresh();
+        });
+        this.lightsOffButton.setOnAction(event ->{
+        	for (int i = 0; i < this.applianceList.size(); i++) {
+				if(this.applianceList.get(i).englishType.get().equals("Light")){
+					if(this.applianceList.get(i).isOn()){
+						this.applianceList.get(i).switch_();
+					}
+				}
+			}
+        	drawHouse(gc);
+        	drawAllAppliances(gc, applianceList);
+        	this.sensorTable.refresh();
+        });
+        this.doorsCloseButton.setOnAction(event ->{
+        	for (int i = 0; i < this.applianceList.size(); i++) {
+				if(this.applianceList.get(i).englishType.get().equals("Door") || this.applianceList.get(i).englishType.get().equals("Window")){
+					if(this.applianceList.get(i).isOn()){
+						this.applianceList.get(i).switch_();
+					}
+				}
+			}
+        	drawHouse(gc);
+        	drawAllAppliances(gc, applianceList);
+        	this.sensorTable.refresh();
+        });
+        this.waterOffButton.setOnAction(event ->{
+        	for (int i = 0; i < this.applianceList.size(); i++) {
+				if(this.applianceList.get(i).englishType.get().equals("Water")){
+					if(this.applianceList.get(i).isOn()){
+						this.applianceList.get(i).switch_();
+					}
+				}
+			}
+        	drawHouse(gc);
+        	drawAllAppliances(gc, applianceList);
+        	this.sensorTable.refresh();
+        });
     	//Button Event Handlers
     	/////////////////////////////////////////////////////////////////////////////////////////
     	
@@ -297,9 +384,29 @@ public class MainController {
     	applianceList.add(new GarageDoor("Garagedoor - Right", 510, 258, true, "ガレージドア - 右"));
     	applianceList.add(new GarageDoor("Garagedoor - Left", 409, 258, true, "ガレージドア - 左"));
     	
-//    	applianceList.add(new GarageDoor("Window - ", 409, 258, true, "ガレージドア - 左"));
-//    	applianceList.add(new GarageDoor("Garagedoor - Left", 409, 258, true, "ガレージドア - 左"));
-//    	applianceList.add(new GarageDoor("Garagedoor - Left", 409, 258, true, "ガレージドア - 左"));
+    	applianceList.add(new Window("Window - Kitchen", 358, 47, true, "窓 - キッチン"));
+    	applianceList.add(new Window("Window - Master Bedroom", 128, 33, true, "窓 - マスターベッドルーム"));
+    	applianceList.add(new Window("Window - Kids Bedroom Top", 56, 203, true, "窓 - 子供部屋トップ"));
+    	applianceList.add(new Window("Window - Master Bedroom Left", 64, 99, true, "窓 - マスターベッドルーム"));
+    	applianceList.add(new Window("Window - Garage", 484, 137, true, "窓 - ガレージ"));
+    	applianceList.add(new Window("Window - Living Room Right", 348, 271, true, "窓 - リビングルーム右"));
+    	applianceList.add(new Window("Window - Living Room Left", 232, 271, true, "窓 - 左の居間"));
+    	applianceList.add(new Window("Window - Kids Bedroom Bottom", 111, 270, true, "窓 - キッズベッドルームボトム"));
+    	applianceList.add(new Window("Window - Office", 264, 33, true, "事務所"));
+    	
+    	applianceList.add(new Door("Door - Living Room", 290, 271, true, "ドア - リビングルーム"));
+    	applianceList.add(new Door("Door - Kitchen", 320, 52, true, "ドア - キッチン"));
+    	
+    	applianceList.add(new Water("Water - Kitchen", 378, 82, true, "水 - キッチン"));
+    	applianceList.add(new Water("Water - Master Bath Sink", 209, 50, true, "水 - マスターバスシンク"));
+    	applianceList.add(new Water("Water - Master Bath Shower", 225, 63, true, "水 - マスターバスシャワー"));
+    	applianceList.add(new Water("Water - Living Room Bath", 169, 212, true, "水 - リビングルームバス"));
+    	applianceList.add(new Water("Water - Living Room Sink", 205, 201, true, "水 - 居間の流し"));
+    	
+    	applianceList.add(new CookingAppliance("Oven", 382, 65, true, "オーブン"));
+    	applianceList.add(new CookingAppliance("Stove", 382, 103, true, "レンジ"));
+    	
+    	
     	//Initializes the appliances
     	////////////////////////////////////////////////////////////////////////	
 
@@ -521,6 +628,18 @@ public class MainController {
     			return a;
     			}
     		}
+    		if(a.getType().equals("Water") || a.getType().equals("水")){
+    			if((a.getxPos() <= x) 
+    				&& 
+    				(a.getxPos() + 20 >= x)
+    				&& 
+    				(a.getyPos() <= y)
+    				&&
+    				(a.getyPos() + 20 >= y )){
+    			appliance = a;
+    			return a;
+    			}
+    		}
     		if(a.getType().equals("TV") || a.getType().equals("テレビ")){
     			if((a.getxPos() <= x) 
     				&& 
@@ -548,12 +667,35 @@ public class MainController {
     		if(a.getType().equals("Window") || a.getType().equals("窓")){
     			if((a.getyPos() <= y) 
     				&& 
-    				(a.getyPos() + 20 >= y)
+    				(a.getyPos() + 14 >= y)
     				&& 
     				(a.getxPos() <= x)
     				&&
-    				(a.getxPos() + 49 >= x )){
-    				System.out.println("W HIT");
+    				(a.getxPos() + 23 >= x )){
+    			appliance = a;
+    			return a;
+    			}
+    		}
+    		if(a.getType().equals("Door") || a.getType().equals("ドア")){
+    			if((a.getyPos() <= y) 
+    				&& 
+    				(a.getyPos() + 14 >= y)
+    				&& 
+    				(a.getxPos() <= x)
+    				&&
+    				(a.getxPos() + 23 >= x )){
+    			appliance = a;
+    			return a;
+    			}
+    		}
+    		if(a.getType().equals("CookingAppliance") || a.getType().equals("調理器具")){
+    			if((a.getyPos() <= y) 
+    				&& 
+    				(a.getyPos() + 14 >= y)
+    				&& 
+    				(a.getxPos() <= x)
+    				&&
+    				(a.getxPos() + 23 >= x )){
     			appliance = a;
     			return a;
     			}
@@ -565,7 +707,28 @@ public class MainController {
     public void updateAppliances(ObservableList<Appliance> lst, int x, int y){
     	Appliance a = applianceThatWasSelected(lst, x, y);
     	if(!a.equals(this.nullLight)){
-    		a.switch_();
+    		if(a.englishType.get().equals("CookingAppliance") && !a.isOn())
+    		{
+    			Alert alert = new Alert(AlertType.INFORMATION);
+    			if(this.japIsSelected)
+    			{
+        			alert.setHeaderText("あなたは手動でストーブ/オーブンをつけなければなりません。");
+        			alert.setTitle("キッチン家電規制");
+        			alert.showAndWait();
+    			}
+    			else
+    			{
+        			alert.setHeaderText("You must turn the stove/oven on manually.");
+        			alert.setTitle("Kitchen Appliance Restriction");
+        			alert.showAndWait();
+    			}
+
+    		}
+    		else
+    		{
+        		a.switch_();
+        		this.sensorTable.refresh();
+    		}
     	}
     }
       
@@ -588,6 +751,18 @@ public class MainController {
     			if(a.isOn()){drawOpenWindow(gc, a.getxPos(), a.getyPos());}
     			else{drawClosedWindow(gc, a.getxPos(), a.getyPos());}
     		}
+    		if(a.getType().equals("Door") || a.getType().equals("ドア")){
+    			if(a.isOn()){drawOpenDoor(gc, a.getxPos(), a.getyPos());}
+    			else{drawClosedDoor(gc, a.getxPos(), a.getyPos());}
+    		}
+    		if(a.getType().equals("Water") || a.getType().equals("水")){
+    			if(a.isOn()){drawOnWater(gc, a.getxPos(), a.getyPos());}
+    			else{drawOffWater(gc, a.getxPos(), a.getyPos());}
+    		}
+    		if(a.getType().equals("CookingAppliance") || a.getType().equals("調理器具")){
+    			if(a.isOn()){drawOnCookingAppliance(gc, a.getxPos(), a.getyPos());}
+    			else{drawOffCookingAppliance(gc, a.getxPos(), a.getyPos());}
+    		}
 		}
     }
     
@@ -607,6 +782,24 @@ public class MainController {
     	gc.fillOval(x_pos, y_pos, 17, 17);
     	gc.setFill(Color.YELLOW);
     	gc.fillText("L", x_pos + 5, y_pos + 13);
+    }
+    
+    public void drawOnWater(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.BLACK);
+    	gc.fillOval(x_pos-1, y_pos-1, 19, 19);
+    	gc.setFill(Color.CORNFLOWERBLUE);
+    	gc.fillOval(x_pos, y_pos, 17, 17);
+    	gc.setFill(Color.BLACK);
+    	gc.fillText("W", x_pos + 3, y_pos + 13); 
+    }
+    
+    public void drawOffWater(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.CORNFLOWERBLUE);
+    	gc.fillOval(x_pos-1, y_pos-1, 19, 19);
+    	gc.setFill(Color.BLACK);
+    	gc.fillOval(x_pos, y_pos, 17, 17);
+    	gc.setFill(Color.CORNFLOWERBLUE);
+    	gc.fillText("W", x_pos + 3, y_pos + 13);
     }
     
     public void drawOnTV(GraphicsContext gc, int x_pos, int y_pos){
@@ -632,7 +825,7 @@ public class MainController {
     public void drawOpenGarageDoor(GraphicsContext gc, int x_pos, int y_pos){
     	gc.setFill(Color.BLACK);
     	gc.fillRect(x_pos-1, y_pos-1, 49, 19);
-    	gc.setFill(Color.YELLOW);
+    	gc.setFill(Color.WHITE);
     	gc.fillRect(x_pos, y_pos, 47, 17);
     	gc.setFill(Color.BLACK);
     	gc.fillText("G", x_pos + 12, y_pos + 15);
@@ -650,21 +843,54 @@ public class MainController {
     }
     
     public void drawOpenWindow(GraphicsContext gc, int x_pos, int y_pos){
-    	gc.setFill(Color.WHITE);
-    	gc.fillRect(x_pos-1, y_pos-1, 49, 19);
     	gc.setFill(Color.BLACK);
-    	gc.fillRect(x_pos, y_pos, 47, 17);
+    	gc.fillRect(x_pos-1, y_pos-1, 23, 14);
     	gc.setFill(Color.WHITE);
-    	gc.fillText("W", x_pos + 12, y_pos + 15);
+    	gc.fillRect(x_pos, y_pos, 21, 12);
+    	gc.setFill(Color.BLACK);
+    	gc.fillText("W", x_pos + 5, y_pos + 11);
     }
     
     public void drawClosedWindow(GraphicsContext gc, int x_pos, int y_pos){
     	gc.setFill(Color.WHITE);
-    	gc.fillRect(x_pos-1, y_pos-1, 49, 19);
+    	gc.fillRect(x_pos-1, y_pos-1, 23, 14);
     	gc.setFill(Color.BLACK);
-    	gc.fillRect(x_pos, y_pos, 47, 17);
+    	gc.fillRect(x_pos, y_pos, 21, 12);
     	gc.setFill(Color.WHITE);
-    	gc.fillText("W", x_pos + 12, y_pos + 15);
+    	gc.fillText("W", x_pos+5 , y_pos +11);
+    }
+    
+    public void drawOpenDoor(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.BLACK);
+    	gc.fillRect(x_pos-1, y_pos-1, 23, 14);
+    	gc.setFill(Color.WHITE);
+    	gc.fillRect(x_pos, y_pos, 21, 12);
+    	gc.setFill(Color.BLACK);
+    	gc.fillText("D", x_pos + 5, y_pos + 11);
+    }
+    public void drawClosedDoor(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.WHITE);
+    	gc.fillRect(x_pos-1, y_pos-1, 23, 14);
+    	gc.setFill(Color.BLACK);
+    	gc.fillRect(x_pos, y_pos, 21, 12);
+    	gc.setFill(Color.WHITE);
+    	gc.fillText("D", x_pos + 5, y_pos + 11);
+    }
+    public void drawOnCookingAppliance(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.BLACK);
+    	gc.fillRect(x_pos-1, y_pos-1, 14, 14);
+    	gc.setFill(Color.RED);
+    	gc.fillRect(x_pos, y_pos, 12, 12);
+    	gc.setFill(Color.BLACK);
+    	gc.fillText("C", x_pos, y_pos + 11);
+    }
+    public void drawOffCookingAppliance(GraphicsContext gc, int x_pos, int y_pos){
+    	gc.setFill(Color.RED);
+    	gc.fillRect(x_pos-1, y_pos-1, 14, 14);
+    	gc.setFill(Color.BLACK);
+    	gc.fillRect(x_pos, y_pos, 12, 12);
+    	gc.setFill(Color.RED);
+    	gc.fillText("C", x_pos, y_pos +11);
     }
     
     public void setToEnglish(){
@@ -693,6 +919,10 @@ public class MainController {
     	this.houseViewTab.setText("House View");
     	this.adminTab.setText("Administration");
     	this.graphTab.setText("Spending Graph");
+    	this.doorsCloseButton.setText("D/W Close");
+    	this.lightsOffButton.setText("Lights Off");
+    	this.lightsOnButton.setText("Lights On");
+    	this.waterOffButton.setText("Water Off");
     	
     	for (int i = 0; i < this.applianceList.size(); i++) {
     		applianceList.get(i).switchLangauge();
@@ -725,6 +955,10 @@ public class MainController {
     	this.houseViewTab.setText("ハウスビュー");
     	this.adminTab.setText("管理");
     	this.graphTab.setText("支出グラフ");
+    	this.doorsCloseButton.setText("D/W 閉じる");
+    	this.lightsOffButton.setText("消灯");
+    	this.lightsOnButton.setText("点灯");
+    	this.waterOffButton.setText("zウォーターオフ");
     	
     	for (int i = 0; i < this.applianceList.size(); i++) {
     		applianceList.get(i).switchLangauge();
