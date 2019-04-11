@@ -1,5 +1,8 @@
 package cap_stone;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -259,6 +262,9 @@ public class MainController {
     	this.externalTempTextField.setText("62");
     	this.externalTempTextField.editableProperty().set(false);
     	this.HVACTextField.setText("69");
+    	this.weeklyCostTextField.setText("$36");
+    	this.monthlyCostTextField.setText("$156");
+    	this.yearlyCostTextField.setText("$1882");
     	
     	
     	setGraphArraysWithRandomNumber();
@@ -606,9 +612,17 @@ public class MainController {
     //Various Methods
     
     public void drawHouse(GraphicsContext gc){
-    	String imagePath = "file:/Users/micahgiles/Desktop/Documents/workspace/CapStone_House_Project/src/cap_stone/resized_House_closeup.png";
-    	Image image = new Image(imagePath);
-    	gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
+    	URL url = this.getClass().getClassLoader().getResource("resized_House_closeup.png");
+    	try {
+			System.out.println(url.toURI());
+			File file = new File(url.toURI());
+			String imagePath = "File:" + file.getAbsolutePath();
+			Image image = new Image(imagePath);
+			gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     public Appliance applianceThatWasSelected(ObservableList<Appliance> lst, int x, int y){
@@ -908,8 +922,8 @@ public class MainController {
     	twelveMonthsRadioButton.setText("12 Months");
     	dragModeRadioButton.setText("Drag Mode");
     	onOffRadioButton.setText("On/Off Mode");
-    	englishRadioButton.setText("English");
-    	japaneseRadioButton.setText("Japanese");
+//    	englishRadioButton.setText("English");
+//    	japaneseRadioButton.setText("Japanese");
     	this.modeSelectionLabel.setText("Mode Selection");
     	this.langaugeSelectionLabel.setText("Language Selection");
     	this.switchSelectedButton.setText("Switch Selected");
@@ -944,8 +958,8 @@ public class MainController {
     	twelveMonthsRadioButton.setText("年間");
     	dragModeRadioButton.setText("ラッグモード");
     	onOffRadioButton.setText("オン/オフモード");
-    	englishRadioButton.setText("英語");
-    	japaneseRadioButton.setText("日本語");
+//    	englishRadioButton.setText("英語");
+//    	japaneseRadioButton.setText("日本語");
     	this.modeSelectionLabel.setText("モード選択");
     	this.langaugeSelectionLabel.setText("言語選択");
     	this.switchSelectedButton.setText("択したスイッチ");
