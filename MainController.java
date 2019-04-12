@@ -3,9 +3,15 @@ package cap_stone;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -128,7 +134,7 @@ public class MainController {
     private Label maxGraphValues;
 
     @FXML
-    private Label midGraphVal;
+    private Label minGraphVal;
     
     @FXML
     private Label halfGraphTimeLabel;
@@ -224,6 +230,7 @@ public class MainController {
     	}
     }
     
+    private HVAC hvac;
     
     private int selectedGraphTimeFrame = 1;
     private Boolean japIsSelected = false;
@@ -246,7 +253,7 @@ public class MainController {
 ///////////////////////////////////////////////////////////////////////////////////
   //initialize block
     
-    public void initialize()
+    public void initialize() throws Exception
     {
     	//Creates graphics objects to draw in the canvas
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -257,18 +264,49 @@ public class MainController {
         //Creates graphics objects to draw in the canvas
 
         
-    	this.internalTempTextField.setText("69");
+        hvac = new HVAC();
+        hvac.watchHouse();
+        hvac.watchOutside();
+        hvac.getCalculator().calcMonthlyCosts();
+        hvac.getCalculator().calcWeeklyCosts();
+        hvac.getCalculator().calcYearlyCosts();
+        
+//       System.out.println(hvac.getCalculator().getTotalYearlyEstimatedCost());
+        
+//    	this.internalTempTextField.textProperty().bindBidirectional(hvac.currentTemperature);
+        internalTempTextField.textProperty().bindBidirectional(hvac.currentTemperature);
+        HVACTextField.textProperty().bindBidirectional(hvac.defaultTemperature);
+        
+        
+//        this.internalTempTextField.setText("69");
     	this.internalTempTextField.editableProperty().set(false);
     	this.externalTempTextField.setText("62");
     	this.externalTempTextField.editableProperty().set(false);
-    	this.HVACTextField.setText("69");
-    	this.weeklyCostTextField.setText("$36");
-    	this.monthlyCostTextField.setText("$156");
-    	this.yearlyCostTextField.setText("$1882");
+    	
+    	this.HVACTextField.setText(hvac.getDefaultTemp() + "");
+    	
+    	this.weeklyCostTextField.editableProperty().set(false);
+    	this.monthlyCostTextField.editableProperty().set(false);
+    	this.yearlyCostTextField.editableProperty().set(false);
+    	//(float)(((int)Math.pow(10,2)*this.calulator.getTotalWeeklyEstimatedCost()))/Math.pow(10,2))
+    	
+//    	float a = (float) ((float)(((int)Math.pow(10,2)*this.calulator.getTotalWeeklyEstimatedCost()))/Math.pow(10,2));
+    	
+    	 DecimalFormat twoDForm = new DecimalFormat("#.##");
+    	 
+    	 Float a = Float.valueOf(twoDForm.format(hvac.getCalculator().getTotalWeeklyEstimatedCost())); 
+    	 Float b = Float.valueOf(twoDForm.format(hvac.getCalculator().getTotalMonthlyEstimatedCost()));
+    	 Float c = Float.valueOf(twoDForm.format(hvac.getCalculator().getTotalYearlyEstimatedCost()));
     	
     	
-    	setGraphArraysWithRandomNumber();
-    	updateGraphValLabels();
+    	this.weeklyCostTextField.setText("$" + a);
+    	this.monthlyCostTextField.setText("$" + b);
+    	this.yearlyCostTextField.setText("$" + c);
+ 	
+    	
+
+//    	setGraphArraysWithRandomNumber();
+//    	updateGraphValLabels();
     	
     	this.sensorTable.setItems(applianceList);
     	this.descriptionColumn.setCellValueFactory(rowData -> rowData.getValue().nameProperty());
@@ -285,17 +323,16 @@ public class MainController {
     	/////////////////////////////////////////////////////////////////////////////////////////
     	//Button Event Handlers
     	this.minusButton.setOnAction(event->{
-        	System.out.println("Clicked");
-        	int i = Integer.parseInt(HVACTextField.textProperty().get());
-        	i = i - 1;
-        	HVACTextField.textProperty().set(""+i);
+    		int newVal = Integer.parseInt(HVACTextField.getText()) - 1;
+    		HVACTextField.textProperty().set(""+newVal);
+//    		System.out.println(hvac.defaultTemp.get());
+    		
     	});
     	
     	this.plusButton.setOnAction(event->{
-        	System.out.println("Clicked");
-        	int i = Integer.parseInt(HVACTextField.textProperty().get());
-        	i = i + 1;
-        	HVACTextField.textProperty().set(""+i);
+    		int newVal = Integer.parseInt(HVACTextField.getText()) + 1;
+    		HVACTextField.textProperty().set(""+newVal);
+//    		System.out.println(hvac.defaultTemp.get());
     	});
         this.switchSelectedButton.setOnAction(event ->{
         	this.currentAppliance.switch_();
@@ -305,52 +342,92 @@ public class MainController {
         });
         this.lightsOnButton.setOnAction(event ->{
         	for (int i = 0; i < this.applianceList.size(); i++) {
-				if(this.applianceList.get(i).englishType.get().equals("Light")){
-					System.out.println("A light was found");
-					if(!this.applianceList.get(i).isOn()){
-						this.applianceList.get(i).switch_();
+			if(this.applianceList.get(i).englishType.get().equals("Light")){
+				System.out.println("A light was found");
+				if(!this.applianceList.get(i).isOn()){
+					this.applianceList.get(i).switch_();
+					Connection conn2;
+					try {
+						conn2 = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+						ResultSet result = conn2.createStatement().executeQuery("select * from public.appliances order by id;");
+						conn2.createStatement().executeQuery("update public.appliances set ison = true where id = " + (i + 1) + ";");
+						conn2.close();
+					}
+					catch(Exception e) {
+						System.out.println("Light off");
 					}
 				}
 			}
+		}
         	drawHouse(gc);
         	drawAllAppliances(gc, applianceList);
-        	this.sensorTable.refresh();
+        //	this.sensorTable.refresh();
         });
         this.lightsOffButton.setOnAction(event ->{
         	for (int i = 0; i < this.applianceList.size(); i++) {
-				if(this.applianceList.get(i).englishType.get().equals("Light")){
-					if(this.applianceList.get(i).isOn()){
-						this.applianceList.get(i).switch_();
+			if(this.applianceList.get(i).englishType.get().equals("Light")){
+				if(this.applianceList.get(i).isOn()){
+					this.applianceList.get(i).switch_();
+					Connection conn2;
+					try {
+						conn2 = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+						ResultSet result = conn2.createStatement().executeQuery("select * from public.appliances order by id;");
+						conn2.createStatement().executeQuery("update public.appliances set ison = false where id = " + (i + 1) + ";");
+						conn2.close();
+					}
+					catch(Exception e) {
+						System.out.println("Light off");
 					}
 				}
 			}
+		}
         	drawHouse(gc);
         	drawAllAppliances(gc, applianceList);
-        	this.sensorTable.refresh();
+        //	this.sensorTable.refresh();
         });
         this.doorsCloseButton.setOnAction(event ->{
         	for (int i = 0; i < this.applianceList.size(); i++) {
-				if(this.applianceList.get(i).englishType.get().equals("Door") || this.applianceList.get(i).englishType.get().equals("Window")){
-					if(this.applianceList.get(i).isOn()){
-						this.applianceList.get(i).switch_();
+			if(this.applianceList.get(i).englishType.get().equals("Door") || this.applianceList.get(i).englishType.get().equals("Window")){
+				if(this.applianceList.get(i).isOn()){
+					this.applianceList.get(i).switch_();
+					Connection conn2;
+					try {
+						conn2 = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+						ResultSet result = conn2.createStatement().executeQuery("select * from public.appliances order by id;");
+						conn2.createStatement().executeQuery("update public.appliances set ison = false where id = " + (i + 1) + ";");
+						conn2.close();
+					}
+					catch(Exception e) {
+						System.out.println("Door/Window closed");
 					}
 				}
 			}
+		}
         	drawHouse(gc);
         	drawAllAppliances(gc, applianceList);
-        	this.sensorTable.refresh();
+        //	this.sensorTable.refresh();
         });
         this.waterOffButton.setOnAction(event ->{
         	for (int i = 0; i < this.applianceList.size(); i++) {
-				if(this.applianceList.get(i).englishType.get().equals("Water")){
-					if(this.applianceList.get(i).isOn()){
-						this.applianceList.get(i).switch_();
+			if(this.applianceList.get(i).englishType.get().equals("Water")){
+				if(this.applianceList.get(i).isOn()){
+					this.applianceList.get(i).switch_();
+					Connection conn2;
+					try {
+						conn2 = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+						ResultSet result = conn2.createStatement().executeQuery("select * from public.appliances order by id;");
+						conn2.createStatement().executeQuery("update public.appliances set ison = false where id = " + (i + 1) + ";");
+						conn2.close();
+					}
+					catch(Exception e) {
+						System.out.println("Water off");
 					}
 				}
 			}
+		}
         	drawHouse(gc);
         	drawAllAppliances(gc, applianceList);
-        	this.sensorTable.refresh();
+        //	this.sensorTable.refresh();
         });
     	//Button Event Handlers
     	/////////////////////////////////////////////////////////////////////////////////////////
@@ -369,50 +446,90 @@ public class MainController {
     	
     	////////////////////////////////////////////////////////////////////////
     	//Initializes the appliances	
-    	applianceList.add(new clickableLight("Master Bedroom - Top Right", 77, 47, true, "マスターベッドルーム - 右上"));
-    	applianceList.add(new clickableLight("Master Bedroom - Bottom Right", 76,116,true, "マスターベッドルーム - 右下"));
-    	applianceList.add(new clickableLight("Master Bedroom - Middle", 116,76,true, "マスターベッドルーム - ミドル"));
-    	applianceList.add(new clickableLight("Living Room - Center", 342, 200,true, "リビングルーム - センター"));
-    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Left", 94, 257, true, "キッズベッドルーム - 左下"));
-    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Right", 131, 257, true, "キッズベッドルーム - 右下"));
-    	applianceList.add(new clickableLight("Kids Bedroom - Middle", 104, 206, true, "キッズベッドルーム - ミドル"));
-    	applianceList.add(new clickableLight("Closet - Living Room - Left", 170, 259, true, "クローゼット - リビングルーム - 左"));
-    	applianceList.add(new clickableLight("Bottom Bathroom", 186, 191, true, "下のバスルーム"));
-    	applianceList.add(new clickableLight("Living Room - Top Left", 278, 162, true, "リビングルーム - 左上"));
-    	applianceList.add(new clickableLight("Kitchen", 345, 87, true, "キッチン"));
-    	applianceList.add(new clickableLight("Top Bathroom", 209, 31 ,true, "トップバスルーム"));
-    	applianceList.add(new clickableLight("Closet Office", 185, 87, true, "クローゼット事務所"));
-    	applianceList.add(new clickableLight("Office Top", 282, 45, true, "オフィストップ"));
-    	applianceList.add(new clickableLight("Office Bottom", 246,80,true, "オフィスの下"));
-    	applianceList.add(new clickableLight("Garage", 476,200,true, "ガレージ"));
-    	applianceList.add(new Television("TV - Living Room", 225, 178, true, "テレビ - リビングルーム"));
-    	applianceList.add(new Television("TV - Master Bedroom Room", 163, 52, true, "テレビ - マスターベッドルーム"));
-    	applianceList.add(new GarageDoor("Garagedoor - Right", 510, 258, true, "ガレージドア - 右"));
-    	applianceList.add(new GarageDoor("Garagedoor - Left", 409, 258, true, "ガレージドア - 左"));
-    	
-    	applianceList.add(new Window("Window - Kitchen", 358, 47, true, "窓 - キッチン"));
-    	applianceList.add(new Window("Window - Master Bedroom", 128, 33, true, "窓 - マスターベッドルーム"));
-    	applianceList.add(new Window("Window - Kids Bedroom Top", 56, 203, true, "窓 - 子供部屋トップ"));
-    	applianceList.add(new Window("Window - Master Bedroom Left", 64, 99, true, "窓 - マスターベッドルーム"));
-    	applianceList.add(new Window("Window - Garage", 484, 137, true, "窓 - ガレージ"));
-    	applianceList.add(new Window("Window - Living Room Right", 348, 271, true, "窓 - リビングルーム右"));
-    	applianceList.add(new Window("Window - Living Room Left", 232, 271, true, "窓 - 左の居間"));
-    	applianceList.add(new Window("Window - Kids Bedroom Bottom", 111, 270, true, "窓 - キッズベッドルームボトム"));
-    	applianceList.add(new Window("Window - Office", 264, 33, true, "事務所"));
-    	
-    	applianceList.add(new Door("Door - Living Room", 290, 271, true, "ドア - リビングルーム"));
-    	applianceList.add(new Door("Door - Kitchen", 320, 52, true, "ドア - キッチン"));
-    	
-    	applianceList.add(new Water("Water - Kitchen", 378, 82, true, "水 - キッチン"));
-    	applianceList.add(new Water("Water - Master Bath Sink", 209, 50, true, "水 - マスターバスシンク"));
-    	applianceList.add(new Water("Water - Master Bath Shower", 225, 63, true, "水 - マスターバスシャワー"));
-    	applianceList.add(new Water("Water - Living Room Bath", 169, 212, true, "水 - リビングルームバス"));
-    	applianceList.add(new Water("Water - Living Room Sink", 205, 201, true, "水 - 居間の流し"));
-    	
-    	applianceList.add(new CookingAppliance("Oven", 382, 65, true, "オーブン"));
-    	applianceList.add(new CookingAppliance("Stove", 382, 103, true, "レンジ"));
-    	
-    	
+		Connection conn = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+		ResultSet result = conn.createStatement().executeQuery("select * from public.appliances order by id;");
+	    	conn.close();
+			
+	        result.next();
+	    	applianceList.add(new clickableLight("Master Bedroom - Top Right", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "マスターベッドルーム - 右上"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Master Bedroom - Bottom Right", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "マスターベッドルーム - 右下"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Master Bedroom - Middle", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "マスターベッドルーム - ミドル"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Living Room - Center", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "リビングルーム - センター"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Left", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "キッズベッドルーム - 左下"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Kids Bedroom - Bottom Right", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "キッズベッドルーム - 右下"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Kids Bedroom - Middle", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "キッズベッドルーム - ミドル"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Closet - Living Room - Left", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "クローゼット - リビングルーム - 左"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Bottom Bathroom", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "下のバスルーム"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Living Room - Top Left", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "リビングルーム - 左上"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Kitchen", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "キッチン"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Top Bathroom", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "トップバスルーム"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Closet Office", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "クローゼット事務所"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Office Top", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "オフィストップ"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Office Bottom", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "オフィスの下"));
+	    	result.next();
+	    	applianceList.add(new clickableLight("Garage", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "ガレージ"));
+	    	result.next();
+	    	applianceList.add(new Television("TV - Living Room", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "テレビ - リビングルーム"));
+	    	result.next();
+	    	applianceList.add(new Television("TV - Master Bedroom Room", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "テレビ - マスターベッドルーム"));
+	    	result.next();
+	    	applianceList.add(new GarageDoor("Garagedoor - Right", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "ガレージドア - 右"));
+	    	result.next();
+	    	applianceList.add(new GarageDoor("Garagedoor - Left", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "ガレージドア - 左"));
+	    	
+	    	result.next();
+	    	applianceList.add(new Window("Window - Kitchen", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "窓 - キッチン"));
+	    	result.next();
+	    	applianceList.add(new Window("Window - Master Bedroom", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "窓 - マスターベッドルーム"));
+	    	result.next();
+	    	applianceList.add(new Window("Window - Kids Bedroom Top", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "窓 - 子供部屋トップ"));
+	    	result.next();
+	    	applianceList.add(new Window("Window - Master Bedroom Left", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "窓 - マスターベッドルーム"));
+	    	result.next();
+	    	applianceList.add(new Window("Window - Garage", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "窓 - ガレージ"));
+	    	result.next();
+	    	applianceList.add(new Window("Window - Living Room Right", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "窓 - リビングルーム右"));
+	    	result.next();
+	    	applianceList.add(new Window("Window - Living Room Left", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "窓 - 左の居間"));
+	    	result.next();
+	    	applianceList.add(new Window("Window - Kids Bedroom Bottom", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "窓 - キッズベッドルームボトム"));
+	    	result.next();
+	    	applianceList.add(new Window("Window - Office", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "事務所"));
+	    	
+	    	result.next();
+	    	applianceList.add(new Door("Door - Living Room", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "ドア - リビングルーム"));
+	    	result.next();
+	    	applianceList.add(new Door("Door - Kitchen", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "ドア - キッチン"));
+	    	
+	    	result.next();
+	    	applianceList.add(new Water("Water - Kitchen", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "水 - キッチン"));
+	    	result.next();
+	    	applianceList.add(new Water("Water - Master Bath Sink", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "水 - マスターバスシンク"));
+	    	result.next();
+	    	applianceList.add(new Water("Water - Master Bath Shower", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "水 - マスターバスシャワー"));
+	    	result.next();
+	    	applianceList.add(new Water("Water - Living Room Bath", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "水 - リビングルームバス"));
+	    	result.next();
+	    	applianceList.add(new Water("Water - Living Room Sink", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "水 - 居間の流し"));
+	    	
+	    	result.next();
+	    	applianceList.add(new CookingAppliance("Oven", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "オーブン"));
+	    	result.next();
+	    	applianceList.add(new CookingAppliance("Stove", result.getInt("xpos"), result.getInt("ypos"), result.getBoolean("ison"), "レンジ"));
     	//Initializes the appliances
     	////////////////////////////////////////////////////////////////////////	
 
@@ -461,12 +578,33 @@ public class MainController {
         
         
         
- 		///////////////////////////////////////////////////////////////////////
-        //Event Handlers for graph radio buttons
+      //Event Handlers for graph radio buttons
         this.sevenDayRadioButton.selectedProperty().addListener(event->{
         	if(this.sevenDayRadioButton.isSelected()){
         		System.out.println("7 days selected");
-        		this.setGraphArraysWithRandomNumber();
+        		Wtest28values.clear();
+        		Ctest28values.clear();
+        		Etest28values.clear();
+        		Connection connection1;
+				try {
+					connection1 = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+					ResultSet result1 = connection1.createStatement().executeQuery("select * from public.fourweekevaluation;");
+	                connection1.close();
+	                int i = 0;
+	                while(i < 4) {
+	                	result1.next();
+	                	for (int j = 0; j < 4; j++) {
+	                		Wtest28values.add(result1.getInt("waterusage"));
+	                		Etest28values.add(result1.getInt("powerusage"));
+	                		Ctest28values.add((int) Math.ceil(result1.getDouble("cost")));
+	                		System.out.println(Wtest28values.get(i));
+	                	}
+	                	i++;
+	                }
+				} catch (Exception e1) {
+					System.out.println("Error Occurred");
+					this.setGraphArraysWithRandomNumber();
+				}
         		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
                 		Wtest28values,
                 		Etest28values,
@@ -480,7 +618,29 @@ public class MainController {
         this.sixMonthsRadioButton.selectedProperty().addListener(event->{
         	if(this.sixMonthsRadioButton.isSelected()){
         		System.out.println("6 Month selected");
-        		this.setGraphArraysWithRandomNumber();
+        		//this.setGraphArraysWithRandomNumber();
+        		Wtest28values.clear();
+        		Ctest28values.clear();
+        		Etest28values.clear();
+        		Connection connection1;
+				try {
+					connection1 = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+					ResultSet result1 = connection1.createStatement().executeQuery("select * from public.yearlyevaluation;");
+	                connection1.close();
+	                int i = 0;
+	                while(i < 14) {
+	                	result1.next();
+	                	for (int j = 0; j < 2; j++) {
+	                		Wtest28values.add(result1.getInt("waterusage"));
+	                		Etest28values.add(result1.getInt("powerusage"));
+	                		Ctest28values.add((int) Math.ceil(result1.getDouble("costs")));
+	                		System.out.println(Wtest28values.get(i));
+	                	}
+	                	i++;
+	                }
+				} catch (Exception e1) {
+					this.setGraphArraysWithRandomNumber();
+				}
         		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
                 		Wtest28values,
                 		Etest28values,
@@ -494,7 +654,26 @@ public class MainController {
         this.fourWeeksRadioButton.selectedProperty().addListener(event->{
         	if(this.fourWeeksRadioButton.isSelected()){
         		System.out.println("4 weeks selected");
-        		this.setGraphArraysWithRandomNumber();
+        		//this.setGraphArraysWithRandomNumber();
+        		Wtest28values.clear();
+        		Ctest28values.clear();
+        		Etest28values.clear();
+        		Connection connection1;
+				try {
+					connection1 = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+					ResultSet result1 = connection1.createStatement().executeQuery("select * from public.fourweekevaluation;");
+	                connection1.close();
+	                int i = 0;
+	                while(result1.next()) {
+	                	Wtest28values.add(result1.getInt("waterusage"));
+	                	Etest28values.add(result1.getInt("powerusage"));
+	                	Ctest28values.add((int) Math.ceil(result1.getDouble("cost")));
+	                	System.out.println(Wtest28values.get(i));
+	                	i++;
+	                }
+				} catch (Exception e1) {
+					this.setGraphArraysWithRandomNumber();
+				}
         		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
                 		Wtest28values,
                 		Etest28values,
@@ -508,7 +687,26 @@ public class MainController {
         this.twelveMonthsRadioButton.selectedProperty().addListener(event->{
         	if(this.twelveMonthsRadioButton.isSelected()){
         		System.out.println("12 months selected");
-        		this.setGraphArraysWithRandomNumber();
+        		//this.setGraphArraysWithRandomNumber();
+        		Wtest28values.clear();
+        		Ctest28values.clear();
+        		Etest28values.clear();
+        		Connection connection1;
+				try {
+					connection1 = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+					ResultSet result1 = connection1.createStatement().executeQuery("select * from public.yearlyevaluation;");
+	                connection1.close();
+	                int i = 0;
+	                while(result1.next()) {
+	                	Wtest28values.add(result1.getInt("waterusage"));
+	                	Etest28values.add(result1.getInt("powerusage"));
+	                	Ctest28values.add((int) Math.ceil(result1.getDouble("costs")));
+	                	System.out.println(Wtest28values.get(i));
+	                	i++;
+	                }
+				} catch (Exception e1) {
+					this.setGraphArraysWithRandomNumber();
+				}
         		graphDrawing.drawGraph(graph_canvas, (int)graphCanvas.getWidth(), (int)graphCanvas.getHeight(), 
                 		Wtest28values,
                 		Etest28values,
@@ -741,6 +939,20 @@ public class MainController {
     		else
     		{
         		a.switch_();
+        		Connection conn;
+    			try {
+    				conn = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:10000/tiana18", "tiana18web", "TrafalgarLaw18");
+    				if (a.isOn()) {
+    	        		conn.createStatement().executeQuery("UPDATE public.appliances SET ison = true WHERE xpos = " + a.xPos + "AND ypos = " + a.yPos + ";");
+    	        	}
+    	        	else {
+    	        		conn.createStatement().executeQuery("UPDATE public.appliances SET ison = false WHERE xpos = " + a.xPos + "AND ypos = " + a.yPos + ";");
+    	        	}
+    	        	conn.close();
+    			} 
+    			catch (Exception e) {
+    				System.out.println("Updated");
+    			}
         		this.sensorTable.refresh();
     		}
     	}
@@ -984,8 +1196,12 @@ public class MainController {
     	int elecMax = graphDrawing.getMax(Etest28values);
     	int costMax = graphDrawing.getMax(Ctest28values);
     	
-    	this.maxGraphValues.setText(waterMax + "gal, " + elecMax + "kwh, " + "$" + costMax + "----");
-    	this.midGraphVal.setText(waterMax/2 + "gal, " + elecMax/2 + "kwh, " + "$" + costMax/2 + "----");
+    	int waterMin = graphDrawing.getMin(Wtest28values);
+    	int elecMin = graphDrawing.getMin(Etest28values);
+    	int costMin = graphDrawing.getMin(Ctest28values);
+    	
+    	this.maxGraphValues.setText(waterMax + "gal, " + elecMax + "kwh, " + "$" + costMax);
+    	this.minGraphVal.setText(waterMin + "gal, " + elecMin + "kwh, " + "$" + costMin);
     }
     
     public void setGraphArraysWithRandomNumber(){

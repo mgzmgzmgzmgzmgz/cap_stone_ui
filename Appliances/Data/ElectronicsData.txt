@@ -1,0 +1,13 @@
+//Formatting: name,wattage/h,canSwitch
+// The electronics also need "average time usage" for the calculator. - Tiana .3/26/19
+Light,60,true
+Fan,30,true
+HVAC,3500,false
+Refrigerator,150,false
+Microwave,1100,false
+Hot Water Heater,4500,false
+Stove,3500,false
+Oven,4000,false
+Living Room TV,636,true
+Bedroom TV,100,true
+Clothes Dryer,3000,false

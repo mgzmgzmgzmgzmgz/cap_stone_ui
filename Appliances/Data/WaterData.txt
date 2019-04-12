@@ -1,0 +1,6 @@
+//Formatting: Name,Wattage,Water per load, hot water usage,average runtime NOTE: I changed the "Water per load" values for Bath and Shower to '30' and '25', respectively. - Tiana
+
+Bath,0,30,0.65,0
+Shower,0,25,0.65,0
+Dishwasher,1800,6,1.0,45
+Clothes Washer,500,20,0.85,30
